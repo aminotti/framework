@@ -1,3 +1,3 @@
-# Yoveo framework
+# Yameo framework
 
-Framework use to develop Yoveo applications.
+Framework use to develop Yameo applications.
