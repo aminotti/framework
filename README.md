@@ -1,2 +1,3 @@
-# framework
-Core framework for app
+# Yoveo framework
+
+Framework use to develop Yoveo applications.
