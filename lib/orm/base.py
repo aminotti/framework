@@ -26,19 +26,19 @@ class Mapper(object):
     """ Base class for ORM's drivers implementation. """
 
     @classmethod
-    def install(cls):
+    def onInstall(cls):
         """ A method excute on module install. """
-        raise NotImplementedError
+        pass
 
     @classmethod
-    def upgrade(cls):
+    def onUpgrade(cls):
         """ A method excute on module upgrade. """
-        raise NotImplementedError
+        pass
 
     @classmethod
-    def remove(cls):
+    def onRemove(cls):
         """ A method excute when removing module. """
-        raise NotImplementedError
+        pass
 
     @classmethod
     def search(cls, domain, fields=None, count=None, offset=None, sort=None):

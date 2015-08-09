@@ -1,0 +1,11 @@
+debug_level: 3  # 0 prod, 1 dev client API, 2 dev API, 3 DEBUG Message, 4 full DEBUG message
+server_name: Yameo API server
+tenancy: ([^\.]*)\.[^\.]+$  # use mydomain for tenancy with sub.mydomain.com and mydomain.com
+db_uri: mysql://root:@localhost/yameo
+auto_create_db: True
+max_pool_size: 10
+data_dir: /var/data
+
+mymodule:
+    color: blue
+    city: Paris
