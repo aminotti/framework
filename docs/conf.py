@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.graphviz'
 ]
 
 autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
