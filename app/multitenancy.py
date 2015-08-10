@@ -23,7 +23,7 @@
 
 import re
 from threading import Lock
-from flask import Flask
+from flask import Flask, request
 from werkzeug.exceptions import NotFound
 from .config import conf
 from lib.logger import debug, error
@@ -74,8 +74,13 @@ class AppDispatcher(object):
         def hello_world():
             return "Hello World {}!".format(tenant)
 
+        @app.route('/modules/install/<module>')
+        def install(module):
+            SmartManagement.install(module, request, tenant)
+            return "{} installed!".format(module)
+
         # TODO load modules
-        SmartManagement.loadModule()
+        SmartManagement.loadModules(tenant)
 
         return app
 

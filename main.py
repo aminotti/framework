@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*
 
-from app.multitenancy import application
+import sys
 from werkzeug.serving import run_simple
 from app.config import conf
+from app.multitenancy import application
 
 if __name__ == '__main__':
     debug = conf.debug_level > 1

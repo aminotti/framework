@@ -67,3 +67,7 @@ class Conf(object):
         return self.options.get('--' + key.lower().replace('_', '-'), os.getenv(key.upper(), value))
 
 conf = Conf()
+
+# Add modules directories to python path
+conf.module_path = conf.module_path.split(',')
+sys.path += conf.module_path
