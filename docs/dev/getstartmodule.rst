@@ -1,7 +1,7 @@
 Getting started
 ===============
 
-A module is used to add features to the core, it can override the core or others modules.
+A module is used to add features or extend the core, it can override the cores module or extras modules.
 
 Structure
 ---------
@@ -10,21 +10,24 @@ Structure
 
     modules
     └── <mymod>
-        ├── __init__.py (empty)
+        ├── __init__.py (manual import of module's controllers)
         ├── config.yaml
         ├── settings.yaml
         ├── metadata.py (module's infos)
         ├── locales
         ├── controllers
-        │   ├── __init__.py (manual import of module's controllers)
-        │   ├── <otherctl>.py (sample controller)
-        │   ├── <myctl>.py (a sample controller which add route to an other controller)
+        │   ├── __init__.py (empty)
+        │   ├── <myctl>.py (standalone controller)
         ├── models
         │   ├── __init__.py (manual import of module's models)
         │   ├── <mymodel>.py (sample model)
         └── overrides
             ├── __init__.py (manual import of module's overrides)
             └── <myoverride>.py (model's override sample)
+
+.. note::
+
+    Here **modules** is a directory define with ``--module-path`` argument.
 
 Configuration
 -------------
@@ -149,61 +152,44 @@ Using
 Route/controllers
 -----------------
 
-Create a route for this module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+They is 2 ways to add routes, you can add routes to a model or you can add standalone routes.
+
+Standalone routes
+~~~~~~~~~~~~~~~~~
 
 1. Create file ``modules/<mymod>/controllers/myctl.py`` :
 
+
 .. code:: python
 
-    from controllers import http
+    from flask import current_app
+    from app.controller import Controller
 
-    http.prefix = "mymod"
 
-    @http.route("/user/<email>", methods=['GET', 'PUT', 'PATCH', 'DELETE'])
-    def customer(email):
-        return Customer.dispatchMethods({'email': email})
+    ctl = Controller()
+
+    @ctl.route('/show/')
+    def show_tenant():
+        return current_app.tenant
+
+    @ctl.route('/hello/')
+    def hello():
+        return 'Hello world!'
 
 .. note::
 
-    By convention all controllers of the same module **MUST** define the same ``http.prefix``, which relate to the module's name.
+    This exemple show how to access tenancy prefix using Flask current_app where it is stored.
 
-2.  Add to ``modules/<mymod>/controllers/__init__.py`` :
-
-.. code:: python
-
-    import myctl
-
-Add new route to another module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In this example we add a route to ``othermod`` module.
-
-1. Create ``modules/mymod/controllers/otherctl.py`` 
-
-.. warning:: If we use the same controller's filename as in ``othermod`` module, every route defined in the original file will not work.
+2.  Add to ``modules/<mymod>/__init__.py`` :
 
 .. code:: python
 
-    from controllers import http
+    from myctl import ctl
 
-    http.prefix = "othermod"
+Add route to a model
+~~~~~~~~~~~~~~~~~~~~
 
-    @http.route("/newroute/")
-    def newroute():
-        return "New route!!"
-
-2. Then add to ``modules/mymod/controllers/__init__.py`` :
-
-.. code:: python
-
-    import othermod
-
-Moving the controller to the core
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1. Move ``modules/mymod/controllers/mymod.py`` to ``controllers/``.
-2. Remove import directive in ``modules/mymod/controllers/__init__.py``.
+See **Model** below.
 
 Model
 -----

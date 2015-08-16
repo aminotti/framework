@@ -1,0 +1,8 @@
+name: Beta Test
+version: 1.0
+description: Description text
+author: Author Name
+email: author@name.tld
+website: http://www.monplug.tld
+git: https://forge.meezio.org/git/meeziocore/sample_module.git
+auto-install: True

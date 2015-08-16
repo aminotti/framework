@@ -26,7 +26,7 @@ from threading import Lock
 from flask import Flask, request
 from werkzeug.exceptions import NotFound
 from .config import conf
-from lib.logger import debug, error
+from lib.logger import debug, error, info
 from .module import SmartManagement
 
 
@@ -47,7 +47,7 @@ class AppDispatcher(object):
             error("Regular expression ' {}' don't match with '{}', please check 'tenancy' option".format(conf.tenancy, host))
             return NotFound()
 
-        debug("Prefix use for tenancy for host '{}' : '{}'.".format(host, tenant))
+        debug("Tenancy's prefix for host '{}' : '{}'.".format(host, tenant))
 
         with self.lock:
             app = self.instances.get(tenant)
@@ -66,21 +66,11 @@ class AppDispatcher(object):
             pass
 
         app = Flask(__name__)
+        app.tenant = tenant
 
-        debug("Building app for tenant '{}'.".format(tenant))
+        debug("Building app for tenant '{}'.".format(app.tenant))
 
-        # TODO tej qd load module route OK
-        @app.route('/')
-        def hello_world():
-            return "Hello World {}!".format(tenant)
-
-        @app.route('/modules/install/<module>')
-        def install(module):
-            SmartManagement.install(module, request, tenant)
-            return "{} installed!".format(module)
-
-        # TODO load modules
-        SmartManagement.loadModules(tenant)
+        SmartManagement.loadModules(app)
 
         return app
 

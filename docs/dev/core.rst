@@ -7,5 +7,5 @@ Contents:
    :maxdepth: 2
 
    moduleloading
-   optionparsing
+   configsetup
    uploadfile

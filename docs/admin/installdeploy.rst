@@ -23,7 +23,7 @@ Install package
 Setup uwsgi
 +++++++++++
 
-* /etc/uwsgi/apps-available/myapp.ini :
+* /etc/uwsgi/apps-available/yamao.ini :
 
 ::
 
@@ -31,12 +31,18 @@ Setup uwsgi
     # http = 127.0.0.1:5000  # HTTP standalone
     # socket = 127.0.0.1:8000  # Socket HTTP to talk with nginx (Default socket UNIX)
     stats = 127.0.0.1:9191
-    chdir = /path/to/core-backend
-    home = /path/to/core-backend/venv
+    chdir = /path/to/yameo
+    # home = /path/to/yameo/venv
     module = main
-    callable = http
+    callable = application
     processes = 4  # Nb workers
-    threads = 2  # Nb cores used
+    threads = 4  # Nb cores used
+
+
+.. note::
+
+    ``processes`` : uwsig is forked in ``<nb>`` process which start differente ``application`` instances.
+    ``threads`` : uwsgi run processes in ``<nb>`` thread and move process from thread to thread.
 
 Setup Nginx
 +++++++++++
@@ -50,3 +56,7 @@ Setup Nginx
         #uwsgi_pass      127.0.0.1:8000;
         uwsgi_pass unix:/run/uwsgi/app/myapp/socket;
     }
+
+.. todo::
+
+    Process static files.
