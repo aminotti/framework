@@ -54,6 +54,7 @@ class AppDispatcher(object):
             if app is None:
                 app = self._create_app(tenant)
                 self.instances[tenant] = app
+            print id(app)
             return app
 
     def __call__(self, environ, start_response):
@@ -69,6 +70,11 @@ class AppDispatcher(object):
         app.tenant = tenant
 
         debug("Building app for tenant '{}'.".format(app.tenant))
+
+        @app.route('/install/<module>')
+        def install(module):
+            SmartManagement.install(module, app)
+            return "Install ok!!"
 
         SmartManagement.loadModules(app)
 

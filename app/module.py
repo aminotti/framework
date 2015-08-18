@@ -25,10 +25,12 @@ import os
 import inspect
 from sets import Set
 import yaml
+from werkzeug.routing import Map, Rule
+
 from lib.logger import error
 from lib.exceptions import *
 from app.config import conf
-from app.context import models
+from app.context import model
 from app import controller
 
 
@@ -93,35 +95,35 @@ class SmartManagement(object):
         cls._importAll(app)
 
     @classmethod
-    def install(cls, module, request, tenant):
+    def install(cls, module, app):
         """ Call this method when user click on install button.
 
         :param str module: Module identifier.
         """
-        cls.installed = cls._loadInstalledModuleList(tenant)
-        cls._autoInstall([module])
-        cls._saveInstalledModuleList(cls.installed, tenant)
-        cls._shutdown_app(request)
+        # cls.installed = cls._loadInstalledModuleList(app.tenant)
+        # cls._autoInstall([module])
+        # cls._saveInstalledModuleList(cls.installed, app.tenant)
+        cls._reset_app(app)
 
     @classmethod
-    def ugrade(cls, module, request):
+    def ugrade(cls, module, app):
         """ Call this method when user click on upgrade button.
 
         :param str module: Module identifier.
         """
         cls._autoUpgrade([module])
-        cls._shutdown_app(request)
+        cls._reset_app(app)
 
     @classmethod
-    def remove(cls, module, request, tenant):
+    def remove(cls, module, app):
         """ Call this method when user click on remove button.
 
         :param str module: Module identifier.
         """
-        cls.installed = cls._loadInstalledModuleList(tenant)
+        cls.installed = cls._loadInstalledModuleList(app.tenant)
         cls._autoRemove([module])
-        cls._saveInstalledModuleList(cls.installed, tenant)
-        cls._shutdown_app(request)
+        cls._saveInstalledModuleList(cls.installed, app.tenant)
+        cls._reset_app(app)
 
     @classmethod
     def _loadLocalModuleList(cls):
@@ -177,9 +179,7 @@ class SmartManagement(object):
 
     @classmethod
     def _importAll(cls, app):
-        # TODO
-        # models[app.tenant] = "TRUC
-        print cls.installed
+        print cls.installed  # TODO tej
         for mod in cls.installed:
             cls._loadModule(mod, app)
 
@@ -188,20 +188,26 @@ class SmartManagement(object):
         mod = __import__(module, globals(), locals(), ['*'], -1)
 
         for attr in dir(mod):
-            ctl = getattr(mod, attr, None)
-            if isinstance(ctl, controller.Controller):
-                ctl.buildRoutes(app)  # Set standalone routes for current app
-        # TODO importer autre def et charger dans models[app.tenant] (ou importer direct module ???
+            obj = getattr(mod, attr, None)
+            # Load standalone routes for current app
+            if isinstance(obj, controller.Controller):
+                obj.buildRoutes(app)
+            # Load Models per tenant
+            elif inspect.isclass(obj):  # and issubclass(obj, ORM/HTTPMethod):
+                model.add(app.tenant, attr, obj)
         # TODO create model from yaml
+        # TODO import view (xml)
+        # TODO import data (json, yaml, csv)
+        # TODO import workflow (xml ? yaml?)
 
     @classmethod
-    def _shutdown_app(cls, request):
-        # TODO kill app or manual reimport module (purge models[app.tenant])
-        print "######"
-        func = request.environ.get('werkzeug.server.shutdown')
-        print "######"
-        if func is None:
-            error("Can't reload app, manual restart needed.")
-        else:
-            print "$$$$"
-            func()
+    def _reset_app(cls, app):
+        # TODO remove view
+        # TODO remove data
+        # TODO remove workflow
+
+        # Remove Models
+        model.reset(app.tenant)
+        # Reset to default Flask route
+        app.url_map = Map([Rule('/static/<filename>', methods=['HEAD', 'OPTIONS', 'GET'], endpoint='static')])
+        cls._importAll(app)

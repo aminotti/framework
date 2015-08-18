@@ -23,14 +23,27 @@
 
 from flask import current_app
 
-# current_app.tenant
 
-models = dict()
+# TODO pour model dynamique stocker nom Model, nom class, list heritier, nom parent, numéroe sequence
+class Context(object):
+    _models = dict()
+
+    @classmethod
+    def add(cls, tenant, name, obj):
+        """ Add models class to a dict by tenant """
+        if tenant not in cls._models:
+            cls._models[tenant] = dict()
+        cls._models[tenant][name] = obj
+
+    @classmethod
+    def reset(cls, tenant):
+        cls._models.pop(tenant, None)
+
+    def test(self):
+        print self._models
+
+    def __getattr__(self, name):
+        return self._models[current_app.tenant][name]
 
 
-def getModel():
-    pass
-
-
-def getFromModule(classname, modulename):
-    pass
+model = Context()
