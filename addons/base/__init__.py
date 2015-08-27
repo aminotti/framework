@@ -1,2 +1,2 @@
 from routes import ctl
-from truc import Truc
+from customer import Customer

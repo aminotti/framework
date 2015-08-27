@@ -32,6 +32,7 @@ from lib.exceptions import *
 from app.config import conf
 from app.context import model
 from app import controller
+from lib.orm import base
 
 
 def loadMetadata():
@@ -193,7 +194,7 @@ class SmartManagement(object):
             if isinstance(obj, controller.Controller):
                 obj.buildRoutes(app)
             # Load Models per tenant
-            elif inspect.isclass(obj):  # and issubclass(obj, ORM/HTTPMethod):
+            elif inspect.isclass(obj) and issubclass(obj, base.Mapper):
                 model.add(app.tenant, attr, obj)
         # TODO create model from yaml
         # TODO import view (xml)

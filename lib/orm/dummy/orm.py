@@ -26,6 +26,13 @@ from ..base import Mapper
 
 class ORM(Mapper):
 
-    def execute(self):
-        """ Model.execute(sqlquery) : Execute une req SQL sur la db config pour ce model et renvoi le resultat brut de la requete. """
-        raise NotImplementedError
+    @staticmethod
+    def whoami():
+        return "Dummy"
+
+    @classmethod
+    def update(cls, domain, data):
+        pass
+
+    def write(self):
+        pass

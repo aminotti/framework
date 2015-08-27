@@ -21,39 +21,24 @@
 #
 ##############################################################################
 
-import sys
-from termcolor import colored
-import inspect
-from app.config import conf
+from ..base import Mapper
 
 
-def debug(string):
-    """ Print debug infos to console.
+class ORM(Mapper):
 
-    :param str string: message to print.
-    """
-    if conf.debug_level == 2:
-        print '[' + colored('DEBUG', 'blue') + ']', string
-    elif conf.debug_level == 3:
-        func = inspect.currentframe().f_back.f_code
-        print '[' + colored('DEBUG', 'blue') + ']', "%s: %s in %s:%i" % (
-            string,
-            func.co_name,
-            func.co_filename,
-            func.co_firstlineno)
+    def execute(self):
+        """ Model.execute(sqlquery) : Execute une req SQL sur la db config pour ce model et renvoi le resultat brut de la requete. """
+        raise NotImplementedError
 
+    @staticmethod
+    def whoami():
+        return "PostgreSQL"
 
-def error(string):
-    """ Print error message to stderr.
+    @classmethod
+    def update(cls, domain, data):
+        # Parent method check data and return secured data to save
+        data2save = super(ORM, cls).update(domain, data)
 
-    :param str string: message to print.
-    """
-    print >> sys.stderr, '[' + colored('ERROR', 'red') + ']', string
-
-
-def info(string):
-    """ Print information message to console.
-
-    :param str string: message to print.
-    """
-    print '[' + colored('INFO', 'green') + ']', string
+    def write(self):
+        # Parent method test if require fields are set
+        super(ORM, self).write()

@@ -1,1 +1,1 @@
-from ormobject import ORM
+from .orm import ORM
