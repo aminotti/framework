@@ -8,14 +8,15 @@ ctl = Controller()
 
 @ctl.route('/')
 def Hello():
-    print model.Customer.whoami()
-    c = model.Customer({"email": "john@doe.com", "nom": "John Doe", "gender": "male"})
+    print model.get('Customer').whoami()
+    c = model.Customer({"nom": "John Doe", "gender": "male"})
     print "#1", c.gender
     c.gender = 'femele'
-    c.cm = '45'
-    # print c.__dict__
-    # print c.__class__.__dict__
+    c.cm = 45
+    c.email = 'john@doe.com'
+    c.email = None
     print "#2", c.email
     print "#3", c.gender
     print "#4", c.cm
+    print "#5", c.age
     return "Hello World {}!".format(current_app.tenant)

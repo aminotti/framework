@@ -1,5 +1,25 @@
-#!/usr/bin/python
-# -*-coding:utf-8 -*
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+# Copyright (C) 2014-2015 Anthony Minotti <anthony@minotti.cool>.
+#
+#
+# This file is part of Yameo framework.
+#
+# Yameo framework is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# Yameo framework is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Yameo framework.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
 
 
 import io
@@ -25,6 +45,7 @@ class Field(object):
     :param bool unique: Set if the value for this field have to be unique.
     :param method compute: A method use to compute the field value. If compute is set, the value is not store in backend.
     :param method constraints: A method use to apply constraint on a field value (e.g. for int, check range between 1 and 100).
+    :param method onchange: A method called on changing field value.
     :param bool index: Whether the field is indexed in backend.
     :param bool readwrite: Set ACI for read/write access.
     :param bool readonly: Set ACI for read-only access.
@@ -45,6 +66,7 @@ class Field(object):
                  unique=False,
                  compute=None,
                  constraints=None,
+                 onchange=None,
                  index=False,
                  readwrite=['*'],
                  readonly=['*'],
@@ -63,9 +85,19 @@ class Field(object):
             self.require = require
         self.unique = unique
         self.copy = copy
-        self.compute = compute
-        self.constraints = constraints
         self.index = index
+        self.constraints = constraints
+        self.onchange = onchange
+        self.compute = compute
+        if self.compute:
+            self.identifier = False
+            self.default = None
+            self.require = None
+            self.constraints = None
+            self.onchange = None
+            self.index = False
+            self.copy = False
+            self.unique = False
         self.readwrite = readwrite
         self.readonly = readonly
         self.backendType = backendType
@@ -75,7 +107,7 @@ class Field(object):
 
         :param str data: The field's value.
         """
-        if self.regex is not None:
+        if data and self.regex is not None:
             if self.regex.match(data) is None:
                 raise Core400Exception("Invalid value : '{}'".format(data))
 
@@ -307,7 +339,7 @@ class EnumField(Field):
         """
         if type(data) is list:
             raise Core400Exception("Invalid type 'List' for EnumField value")
-        elif data.encode("utf8") not in self.values:
+        elif not data or data.encode("utf8") not in self.values:
             raise Core400Exception("Invalid value : '{}'".format(data.encode("utf8")))
 
 
@@ -415,7 +447,7 @@ class StringField(Field):
 
         :param data: The field's value.
         """
-        if self.regex.match(data) is not None:
+        if data and self.regex.match(data) is not None:
             raise Core400Exception("Invalid value : '{}'".format(data))
 
 

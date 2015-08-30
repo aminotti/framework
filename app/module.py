@@ -27,7 +27,7 @@ from sets import Set
 import yaml
 from werkzeug.routing import Map, Rule
 
-from lib.logger import error
+from lib.logger import error, debug
 from lib.exceptions import *
 from app.config import conf
 from app.context import model
@@ -180,7 +180,7 @@ class SmartManagement(object):
 
     @classmethod
     def _importAll(cls, app):
-        print cls.installed  # TODO tej
+        debug("Modules to load for tenant '{}' : {}.".format(app.tenant, cls.installed))
         for mod in cls.installed:
             cls._loadModule(mod, app)
 
@@ -190,7 +190,7 @@ class SmartManagement(object):
 
         for attr in dir(mod):
             obj = getattr(mod, attr, None)
-            # Load standalone routes for current app
+            # Load standalone routes for current tenant/app
             if isinstance(obj, controller.Controller):
                 obj.buildRoutes(app)
             # Load Models per tenant
@@ -203,6 +203,7 @@ class SmartManagement(object):
 
     @classmethod
     def _reset_app(cls, app):
+        # TODO si docker avec plusieurs instance de lancé, killer les autres instances
         # TODO remove view
         # TODO remove data
         # TODO remove workflow

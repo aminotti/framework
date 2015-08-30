@@ -21,7 +21,7 @@
 #
 ##############################################################################
 
-
+import types
 from ..exceptions import *
 from .fields import Field, Index
 
@@ -60,12 +60,34 @@ class Mapper(HTTPMethods):
     # active
     # state ('readonly', 'required', 'invisible')
 
+    # Prepare workflow trigger onchange event
+    """
+    def __new__(cls, *args, **kwargs):
+        for attr, val in cls.__dict__.items():
+            if isinstance(val, types.FunctionType):
+                Créer un dict du genre {attrdpendant, [metho1, method2, method3, ...]}
+                print "******", attr, val, hasattr(val, '_onchange')
+
+        return super(Mapper, cls).__new__(cls, *args, **kwargs)
+    """
+
     def __init__(self, *args, **kwargs):
-        # Load defaults values to fields
         self._fields = dict()
+        computed = dict()
+
         for fieldname in self._columns:
             field = getattr(self, '_' + fieldname)
+
+            # Load defaults values to fields
             self._fields[fieldname] = field.default
+
+            # Prepare computed values
+            if field.compute:
+                f = getattr(self, field.compute, None)
+                if not f:
+                    raise Core500Exception("Compute method not found : '{}'".format(field.compute))
+                else:
+                    computed[fieldname] = f
 
         for dictionary in args:
             for key in dictionary:
@@ -78,29 +100,53 @@ class Mapper(HTTPMethods):
                 raise Core400Exception("Bad attribute : '{}'".format(key))
             setattr(self, key, kwargs[key])
 
+        # Set computed value here cause can depends of previous attributes setted
+        for key, val in computed.items():
+            self._fields[key] = val()
+
     def __setattr__(self, name, value):
         if name in self._columns:
             field = getattr(self, '_' + name)
             # TODO Check ACL RW allowed
             # Syntax/type checks
             field.check(value)
-            # TODO appeler les differentes method onChange et compute
+            # TODO appeler les differentes compute (pas implementer car compte exec qd acces au champe compute)
+            # TODO trigger workflow event onchange
+            # Call On change method
+            if field.onchange:
+                f = getattr(self, field.onchange, None)
+                if not f:
+                    raise Core500Exception("On change method not found : '{}'".format(field.onchange))
+                value = f(self._fields[name], value)
             # Applying constraints
             if field.constraints:
-                value = field.constraints(value)
+                f = getattr(self, field.constraints, None)
+                if not f:
+                    raise Core500Exception("Constraints method not found : '{}'".format(field.constraints))
+                value = f(value)
             # Set to default value if value is None
             if not value and field.default:
                 value = field.default
             # Don"t set to None require's fields
-            if not field.require or value:
+            if (not field.require or value) and not field.compute:
+                field.check(value)
                 self._fields[name] = value
         else:
             object.__setattr__(self, name, value)
 
     def __getattr__(self, name):
         if name in self._columns:
+            field = getattr(self, '_' + name)
             # TODO Check ACL RO or RW allowed
-            return self._fields[name]
+            # Perform computed Fields
+            if field.compute:
+                f = getattr(self, field.compute, None)
+                if not f:
+                    raise Core500Exception("Compute method not found : '{}'".format(field.compute))
+                self._fields[name] = f()
+                return self._fields[name]
+            else:
+                return self._fields[name]
         else:
             return object.__getattr__(self, name)
 

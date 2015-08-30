@@ -21,33 +21,31 @@
 #
 ##############################################################################
 
-from flask import current_app
+
+def depends(*dependencies):
+    """ For compute field """
+    def wrap(f):
+        def wrapper_f(*args):
+            # Return None if dependencies are not set
+            for attr in dependencies:
+                if not args[0]._fields[attr]:
+                    return None
+            r = f(*args)
+            return r
+        # Register attribute dependance
+        setattr(wrapper_f, '_depends', *dependencies)
+        return wrapper_f
+    return wrap
 
 
-# TODO pour model dynamique stocker nom Model, nom class, list heritier, nom parent, numéroe sequence
-class Context(object):
-    _models = dict()
-
-    @classmethod
-    def add(cls, tenant, name, obj):
-        """ Add models class to a dict by tenant """
-        if tenant not in cls._models:
-            cls._models[tenant] = dict()
-        cls._models[tenant][name] = obj
-
-    @classmethod
-    def reset(cls, tenant):
-        cls._models.pop(tenant, None)
-
-    def test(self):
-        print self._models
-
-    def __getattr__(self, name):
-        return self._models[current_app.tenant][name]
-
-    def get(self, name):
-        """ Beside attribute access, model can be accessed by name. """
-        return self._models[current_app.tenant][name]
-
-
-model = Context()
+def onchange(*dependencies):
+    """ Workflow trigger on field update """
+    def wrap(f):
+        def wrapper_f(*args):
+            # Run method if one of the TODO ameliorer commentaire
+            for attr in dependencies:
+                if not args[0]._fields[attr]:
+                    return None
+            f(*args)
+        # Register attribute dependance
+        setattr(wrapper_f, '_onchange', *dependencies)

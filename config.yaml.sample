@@ -1,4 +1,4 @@
-debug_level: 3  # 0 prod, 1 dev client API, 2 dev API, 3 DEBUG Message, 4 full DEBUG message
+debug_level: 2  # 0 prod, 1 dev client API, 2 DEBUG Message, 3 full DEBUG message
 server_name: Yameo API server
 tenancy: ([^\.]*)\.[^\.]+$  # use mydomain for tenancy with sub.mydomain.com and mydomain.com
 db_uri: mysql://root:@localhost/yameo
