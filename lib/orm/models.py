@@ -1,6 +1,6 @@
 from .fields import *
 import mysql
-import postgresql
+import pgsql
 import ldap
 import imap
 import dummy

@@ -80,7 +80,7 @@ class Field(object):
         if self.identifier:
             self.require = True
             self.default = None
-            # don"t set unique and index here because it depend of multi-identifier or not
+            # don"t set unique and index here because it depend if multi-identifier or not.
         else:
             self.require = require
         self.unique = unique
@@ -264,7 +264,7 @@ class DateField(Field):
             raise Core400Exception("Invalid date : '{}'".format(data))
 
 
-class DateTimeField(Field):
+class DatetimeField(Field):
     """ Create a new datetime field.
     See :py:class:`Field` for extra arguments.
     """
@@ -273,7 +273,7 @@ class DateTimeField(Field):
     """ Regular expression to test valid datetime string. """
 
     def __init__(self, **kw):
-        super(DateTimeField, self).__init__(**kw)
+        super(DatetimeField, self).__init__(**kw)
 
     def check(self, data):
         """ Raise a 400 exception if field's value is not a :py:class:`datetime.datetime`.
@@ -384,12 +384,13 @@ class IntField(Field):
     :param int size: number of digit, **default** to None.
     :param bool zerofill: for SQL, if fill with zero. **Default** to False.
     :param bool unsigned: for SQL, if number is signed or not. **Default** to False.
+    :param bool autoIncrement: If auto increment is activate, not implemented by every backends. **Default** to False.
     """
     def __init__(self, **kw):
         self.size = kw.pop('size', None)
         self.zerofill = kw.pop('zerofill', False)
         self.unsigned = kw.pop('unsigned', False)
-        # self.autoIncrement = kw.pop('autoIncrement', False) => Too mutch backend dependant
+        self.autoIncrement = kw.pop('autoIncrement', False)
         super(IntField, self).__init__(**kw)
 
     def check(self, data):
@@ -486,7 +487,7 @@ class TimeField(Field):
             raise Core400Exception("Invalid time : '{}'".format(data))
 
 
-class URLField(Field):
+class UrlField(Field):
     """ Create a new URL field.
     See :py:class:`Field` for extra arguments.
 
@@ -498,17 +499,18 @@ class URLField(Field):
 
     def __init__(self, **kw):
         self.length = 2048
-        super(URLField, self).__init__(**kw)
+        super(UrlField, self).__init__(**kw)
 
 
 class Index(object):
-    """ Create a new Index.
+    """ Create a new Index base on several Fields.
 
-    .. todo::
+    .. note::
 
-        LDAP implementation.
+        * Indexes are automatically created for identifiers.
+        * For Index on single Field, use Field's attribute instead.
 
-    :param columns: str or list of str to concat to create index.
+    :param columns: list of str containing field's name.
     """
     def __init__(self, columns):
         self.columns = columns

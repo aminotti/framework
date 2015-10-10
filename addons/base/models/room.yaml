@@ -1,0 +1,26 @@
+name: Room
+uri: default
+fields:
+    batiment:
+        type: int
+        size: 2
+        zerofill: True
+        identifier: True
+        unsigned: True
+        default: 1
+    number:
+        type: int
+        size: 3
+        zerofill: True
+        identifier: True
+        unsigned: True
+    name:
+        type: string
+        fieldName: 'room_name'
+        length: 150
+    #contrat: 
+    #    type binary
+    #    require: False
+    #    backendFS: False
+indexes:
+    monindex: number

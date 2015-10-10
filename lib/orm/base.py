@@ -23,7 +23,8 @@
 
 import types
 from ..exceptions import *
-from .fields import Field, Index
+from .fields import Field, Index, IntField
+from lib.logger import debug
 
 
 class MapperMetaCls(type):
@@ -31,8 +32,31 @@ class MapperMetaCls(type):
         for parent in bases:
             if parent.__base__.__name__ is 'Mapper':
                 d['_columns'] = [field for field in d if isinstance(d[field], Field)]
-                d['_Identifiers'] = [field for field in d['_columns'] if d[field].identifier]
+                d['_identifiers'] = [field for field in d['_columns'] if d[field].identifier]
                 d['_indexes'] = [index for index in d if isinstance(d[index], Index)]
+
+                if not d['_identifiers']:
+                    ressource = name.lower()
+                    idressource = "id{}".format(ressource)
+                    debug("Create default ID 'id{0}' for '{0}'.".format(ressource))
+
+                    d['_columns'].append(idressource)
+                    d['_identifiers'].append(idressource)
+                    d[idressource] = IntField(size=6, zerofill=True, unsigned=True, autoIncrement=True, identifier=True, unique=True)
+
+                # Create index on identifier
+                d['idxidentifiers'] = Index(d['_identifiers'][:])
+                d['_indexes'].append('idxidentifiers')
+
+                # Create index for Field with index attribute set to True
+                tmp = dict()
+                idx = list()
+                for f in d:
+                    if isinstance(d[f], Field) and not d[f].identifier and d[f].index:
+                        tmp['idx' + f] = Index([f])
+                        idx.append('idx' + f)
+                d.update(tmp)
+                d['_indexes'].extend(idx)
 
                 for field in d['_columns']:
                     d['_' + field] = d.pop(field)
@@ -44,7 +68,13 @@ class MapperMetaCls(type):
 
 
 class HTTPMethods(object):
-    pass
+    @classmethod
+    def dispatchMethods(cls, condition=None, relationship=None):
+        from flask import request
+        print request.method
+        print cls.whoami()
+        print condition
+        return "YEAR!!"
 
 
 class Mapper(HTTPMethods):

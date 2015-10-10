@@ -40,7 +40,6 @@ class WSGIApp(Flask):
         # Format internal error message to JSON
         if conf.debug_level in [0, 1]:
             for code in default_exceptions.iterkeys():
-                print "$$", code
                 self.error_handler_spec[None][code] = self.__make_json_error
 
         # Set headers for all response
@@ -96,7 +95,6 @@ class AppDispatcher(object):
             if app is None:
                 app = self._create_app(tenant)
                 self.instances[tenant] = app
-            print id(app)
             return app
 
     def __call__(self, environ, start_response):

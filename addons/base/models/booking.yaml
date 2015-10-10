@@ -1,0 +1,15 @@
+name: Booking
+uri: mysql://root:ocfad@127.0.0.1/test
+fields:
+    nom:
+        type: string
+        fieldName: 'fullname'
+    batiment:
+        type: int
+    email:
+        type:  email
+    reservation:
+        type: date
+    name:
+        type: string
+        fieldName: 'room_name'

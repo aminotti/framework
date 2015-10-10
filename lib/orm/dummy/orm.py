@@ -35,4 +35,4 @@ class ORM(Mapper):
         pass
 
     def write(self):
-        pass
+        print "Save ressources"

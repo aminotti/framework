@@ -10,7 +10,7 @@
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # Yameo framework is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -23,6 +23,7 @@
 
 import os
 import inspect
+import glob
 from sets import Set
 import yaml
 from werkzeug.routing import Map, Rule
@@ -30,7 +31,7 @@ from werkzeug.routing import Map, Rule
 from lib.logger import error, debug
 from lib.exceptions import *
 from app.config import conf
-from app.context import model
+from app.context import models
 from app import controller
 from lib.orm import base
 
@@ -180,36 +181,45 @@ class SmartManagement(object):
 
     @classmethod
     def _importAll(cls, app):
-        debug("Modules to load for tenant '{}' : {}.".format(app.tenant, cls.installed))
+        debug("Addons to load for tenant '{}' : {}.".format(app.tenant, cls.installed))
         for mod in cls.installed:
             cls._loadModule(mod, app)
+
+        # Import registered YAML model for current tenant/app
+        models.buildRegistered(app)
 
     @classmethod
     def _loadModule(cls, module, app):
         mod = __import__(module, globals(), locals(), ['*'], -1)
+        modelpath = os.path.join(os.path.dirname(mod.__file__), 'models')
 
         for attr in dir(mod):
             obj = getattr(mod, attr, None)
             # Load standalone routes for current tenant/app
             if isinstance(obj, controller.Controller):
                 obj.buildRoutes(app)
-            # Load Models per tenant
+            # Load python class models for current tenant/app
             elif inspect.isclass(obj) and issubclass(obj, base.Mapper):
-                model.add(app.tenant, attr, obj)
-        # TODO create model from yaml
-        # TODO import view (xml)
-        # TODO import data (json, yaml, csv)
-        # TODO import workflow (xml ? yaml?)
+                models.add(app.tenant, attr, obj)
+
+        # Register YAML models for current tenant/app
+        if os.path.isdir(modelpath):
+            for modelfile in glob.glob(os.path.join(modelpath, '*.yaml')):
+                models.register(app.tenant, modelfile)
+
+        # TODO Import view (xml) for current tenant/app
+        # TODO Import data (json, yaml, csv) for current tenant/app
+        # TODO Import workflow (xml ? yaml?) for current tenant/app
 
     @classmethod
     def _reset_app(cls, app):
         # TODO si docker avec plusieurs instance de lancé, killer les autres instances
-        # TODO remove view
-        # TODO remove data
-        # TODO remove workflow
+        # TODO Remove views
+        # TODO Remove datas
+        # TODO Remove workflows
 
         # Remove Models
-        model.reset(app.tenant)
+        models.reset(app.tenant)
         # Reset to default Flask route
         app.url_map = Map([Rule('/static/<filename>', methods=['HEAD', 'OPTIONS', 'GET'], endpoint='static')])
         cls._importAll(app)

@@ -1,17 +1,38 @@
-from lib.orm import *
-from app import HTTPMethod
+from app import api
+from app.controller import Controller
 
 
-class Country(HTTPMethod, SQLTable):
-    name = StringField(length=50)
-    price = CurrencyField(default=0.00)
-    paypalCode = StringField(length=2, unique=True)
-    flag = ImageField(notNone=False, backendFS=True, mimeTypes=['image/jpeg', 'image/png'])
+def test(self):
+    print "## test instance OK!", self
 
-    @property
-    def price(self):
-        return self._price * 2
 
-    @price.setter
-    def price(self, value):
-        self._price = value
+@classmethod
+def test1(cls):
+    print "## test classmethod OK!", cls
+
+
+@staticmethod
+def test2():
+    print "## test staticmethod OK!"
+
+
+# onchange event
+def priceChange(self, before, after):
+    print "Updating price", before, after
+    return after
+
+
+# Compute field
+@api.depends('paypalCode')
+def villeCompute(self):
+    print "Compute Field"
+    if self.paypalCode is 'FR':
+        return "Paris"
+    else:
+        return "NC"
+
+
+# Constraint
+def nameConstraints(self, value):
+    print "Call on writting data."
+    return value.capitalize()

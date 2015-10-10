@@ -9,4 +9,4 @@ class RelCustRoom(HTTPMethod, SQLRelationship):
     customer = ForeignKey('Customer', identifier=True)
     room = ForeignKey('Room', identifier=True)
     reservation = DateField()
-    logo = BinaryField(notNone=False)
+    logo = BinaryField(require=False)

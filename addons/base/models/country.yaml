@@ -1,0 +1,25 @@
+name: Country
+uri: default
+fields:
+    name: 
+        type: string
+        length: 50
+        constraints: nameConstraints
+    price:
+        type: currency
+        default: 0.00
+        onchange: priceChange
+    paypalCode:
+        type: string
+        length: 2
+        unique: True
+    ville:
+        type: string
+        compute: villeCompute
+    flag:
+        type: image
+        require: False
+        # backendFS: True
+        mimeTypes:
+            - 'image/jpeg'
+            - 'image/png'
