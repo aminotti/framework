@@ -25,13 +25,16 @@ from ..base import Mapper
 
 
 class ORM(Mapper):
+    @classmethod
+    def setupConnection(cls, uri, tenant):
+        return dict()
 
     @staticmethod
     def whoami():
         return "Dummy"
 
     @classmethod
-    def update(cls, domain, data):
+    def update(cls, domain, ressource):
         pass
 
     def write(self):

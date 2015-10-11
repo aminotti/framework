@@ -22,12 +22,15 @@
 ##############################################################################
 
 import types
+from flask import current_app
 from ..exceptions import *
 from .fields import Field, Index, IntField
-from lib.logger import debug
+from ..logger import debug, error
+from ..httpmethod import HTTPMethods
 
 
 class MapperMetaCls(type):
+    # TODO remplacer _<fieldname> par _<fieldname>_field pour permettre de créer des champs de meme nom que les attribute privés
     def __new__(mcs, name, bases, d):
         for parent in bases:
             if parent.__base__.__name__ is 'Mapper':
@@ -64,17 +67,9 @@ class MapperMetaCls(type):
                 # TODO gerer relations
                 # one2many[name] = list()
 
+                d.update(bases[0].setupConnection(d['_uri'], current_app.tenant))
+
         return type.__new__(mcs, name, bases, d)
-
-
-class HTTPMethods(object):
-    @classmethod
-    def dispatchMethods(cls, condition=None, relationship=None):
-        from flask import request
-        print request.method
-        print cls.whoami()
-        print condition
-        return "YEAR!!"
 
 
 class Mapper(HTTPMethods):
@@ -180,12 +175,42 @@ class Mapper(HTTPMethods):
         else:
             return object.__getattr__(self, name)
 
+    @classmethod
+    def setupConnection(cls, uri, tenant):
+        """ Add connections to pools and set backend specifics attributes. """
+        error("setupConnection() method not implemented for {}".format(cls.whoami()))
+        raise NotImplementedError
+
+    @classmethod
+    def parseURI(cls, uri):
+        port = None
+        user = None
+        password = None
+        param = None
+
+        if '://' not in uri:
+            raise Core500Exception("Bad syntax : {}".format(uri))
+        scheme, rest = uri.split('://', 1)
+        if "@" in rest:
+            user, rest = rest.split('@', 1)
+            if ":" in user:
+                user, password = user.split(':', 1)
+        if "/" in rest:
+            host, param = rest.split('/', 1)
+        else:
+            host = rest
+        if ":" in host:
+            host, port = database.split(':', 1)
+
+        return scheme, user, password, host, port, param
+
     @staticmethod
     def whoami():
         """ Return the name of the driver use.
 
         :return str: The name of the backend driver.
         """
+        error("whoami() method not implemented for this driver")
         raise NotImplementedError
 
     """
@@ -224,21 +249,22 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
         :param dict or srt sort: The fields use to sort the result. To use several field or inverse order use a dict like ``{'fieldname': True}``
         :return: A ressource or a list of ressources.
         """
+        error("search() method not implemented for {}".format(cls.whoami()))
         raise NotImplementedError
 
     @classmethod
-    def update(cls, domain, data):
+    def update(cls, domain, ressource):
         """ Update several records base on the search domain.
 
         :param domain: search filter
-        :param dict data: data use to update fields.
+        :param ressource: A ressource instance use to store data to update.
         """
-        ressource = cls(data)
         data2save = [ressource[k] for k in data.keys()]
 
     @classmethod
     def delete(cls, domain):
         """ Delete several records base on the search domain. """
+        error("delete() method not implemented for {}".format(cls.whoami()))
         raise NotImplementedError
 
     def write(self):
@@ -251,4 +277,5 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
 
     def unlink(self):
         """ Delete the ressource. """
+        error("unlink() method not implemented for {}".format(cls.whoami()))
         raise NotImplementedError

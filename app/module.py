@@ -34,6 +34,7 @@ from app.config import conf
 from app.context import models
 from app import controller
 from lib.orm import base
+from lib.orm.pool import Pool
 
 
 def loadMetadata():
@@ -65,8 +66,8 @@ def loadMetadata():
         metadata.setdefault('version', '1.0')
         metadata.setdefault('license', "AGPL-3")
         metadata.setdefault('auto-install', False)
-        metadata.setdefault('auto-upgrade', False)
         metadata.setdefault('auto-remove', False)
+        metadata.setdefault('depends', list())
 
         # Check if both auto-install and auto-remove are set to True
         if metadata['auto-install'] and metadata['auto-remove']:
@@ -86,15 +87,22 @@ class SmartManagement(object):
     @classmethod
     def loadModules(cls, app):
         """ Call this method to load module on app start.
-            This method proceed auto-install, auto-upgrade and auto-remove before loading modules.
+            This method proceed auto-install and auto-remove before loading modules.
         """
+        # Modules present on file system
         cls.local = cls._loadLocalModuleList()
+        # Modules saved in DB as installed
         cls.installed = cls._loadInstalledModuleList(app.tenant)
+        # Module to install
+        cls.toInstall = list(Set(cls.local['install']) - Set(cls.installed))
+
+        # Load installed module + module to install - module to Remove
         cls._autoRemove(Set(cls.local['remove']) & Set(cls.installed))
-        cls._autoUpgrade(Set(cls.local['upgrade']) & Set(cls.installed))
-        cls._autoInstall(Set(cls.local['install']) - Set(cls.installed))
-        cls._saveInstalledModuleList(cls.installed, app.tenant)
+        cls._beforeAutoInstall(cls.toInstall)
         cls._importAll(app)
+        cls._afterAutoInstall(app.tenant, cls.toInstall)
+
+        cls._saveInstalledModuleList(cls.installed, app.tenant)
 
     @classmethod
     def install(cls, module, app):
@@ -102,6 +110,7 @@ class SmartManagement(object):
 
         :param str module: Module identifier.
         """
+        # TODO implementer install module avec ajout de route
         # cls.installed = cls._loadInstalledModuleList(app.tenant)
         # cls._autoInstall([module])
         # cls._saveInstalledModuleList(cls.installed, app.tenant)
@@ -113,7 +122,7 @@ class SmartManagement(object):
 
         :param str module: Module identifier.
         """
-        cls._autoUpgrade([module])
+        # TODO ajout de route
         cls._reset_app(app)
 
     @classmethod
@@ -122,50 +131,50 @@ class SmartManagement(object):
 
         :param str module: Module identifier.
         """
-        cls.installed = cls._loadInstalledModuleList(app.tenant)
-        cls._autoRemove([module])
-        cls._saveInstalledModuleList(cls.installed, app.tenant)
+        # TODO implementer remove module avec ajout de route
+        # cls.installed = cls._loadInstalledModuleList(app.tenant)
+        # cls._autoRemove([module])
+        # cls._saveInstalledModuleList(cls.installed, app.tenant)
         cls._reset_app(app)
 
     @classmethod
     def _loadLocalModuleList(cls):
         local = dict()
         local['install'] = list()
-        local['upgrade'] = list()
         local['remove'] = list()
         for key, val in cls.metadata.items():
             if val['auto-install']:
                 local['install'].append(key)
-            if val['auto-upgrade']:
-                local['upgrade'].append(key)
             if val['auto-remove']:
                 local['remove'].append(key)
         return local
 
     @classmethod
     def _loadInstalledModuleList(cls, tenant):
-        # TODO init installed from DB
         installed = list()
+
+        # TODO remplacer tout le bloc pas chargement depuis DB des module deja installé pour ce tenant
         # installed.append('base')
         installed.append('beta_test')
         if tenant == 'meezio':
             installed.append('base_perso')
         installed.append('mod_test')
+
         return installed
 
     @classmethod
-    def _autoInstall(cls, modules):
+    def _beforeAutoInstall(cls, modules):
         for module in modules:
-            # TODO call onInstall() from all module's model
             # TODO gerer install des dependances python qd elle sont pas présente
-            # TODO gerer dependance d'autre module => on ajout tous les modules dont il depend (doit etre recursif)
+            # TODO gerer dependance d'autre module => on ajout tous les modules dont il depend (doit etre recursif) à cls.installed
             cls.installed.append(module)
 
     @classmethod
-    def _autoUpgrade(cls, modules):
+    def _afterAutoInstall(cls, tenant, modules):
         for module in modules:
-            # TODO call onUpgrade() from all module's model
-            pass
+            for mod in models.modules[tenant][module]:
+                models.get(mod, tenant).onInstall()
+            # TODO import DATA
 
     @classmethod
     def _autoRemove(cls, modules):
@@ -187,6 +196,7 @@ class SmartManagement(object):
 
         # Import registered YAML model for current tenant/app
         models.buildRegistered(app)
+        Pool.build(conf.max_pool_size)
 
     @classmethod
     def _loadModule(cls, module, app):
@@ -205,7 +215,7 @@ class SmartManagement(object):
         # Register YAML models for current tenant/app
         if os.path.isdir(modelpath):
             for modelfile in glob.glob(os.path.join(modelpath, '*.yaml')):
-                models.register(app.tenant, modelfile)
+                models.register(app.tenant, modelfile, module)
 
         # TODO Import view (xml) for current tenant/app
         # TODO Import data (json, yaml, csv) for current tenant/app

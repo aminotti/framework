@@ -35,9 +35,10 @@ from lib.orm.fields import *
 class Context(object):
     _models = dict()
     _regiteredModels = dict()
+    modules = dict()
 
     @classmethod
-    def register(cls, tenant, yamlfile):
+    def register(cls, tenant, yamlfile, modname):
         """ Register all YAML model's file for later load """
         functions = dict()
         root, ext = os.path.splitext(yamlfile)
@@ -59,6 +60,12 @@ class Context(object):
 
         if tenant not in cls._regiteredModels:
             cls._regiteredModels[tenant] = dict()
+            cls.modules[tenant] = dict()
+
+        if modname not in cls.modules[tenant]:
+            cls.modules[tenant][modname] = list()
+
+        cls.modules[tenant][modname].append(name)
 
         if name not in cls._regiteredModels[tenant]:
             cls._regiteredModels[tenant][name] = list()
@@ -77,17 +84,17 @@ class Context(object):
             # Load models by tenant
             models = dict()
             for name, data in cls._regiteredModels[tenant].items():
-                n, b, d, f = Builder.get(name, data)
+                n, b, d, f = Builder.get(name, data, tenant)
                 models[n] = [n, b, d, f]
 
             for name, data in models.items():
                 dico = cls._mixeWithParent(data, models)
                 dico.update(data[2])
 
-                obj = type(data[0], data[1], dico)
-
-                # Add defaults routes
                 with app.app_context():
+                    obj = type(data[0], data[1], dico)
+
+                    # Add defaults routes
                     identifiers = list()
                     for arg in obj._identifiers:
                         if isinstance(obj.__dict__['_' + arg], IntField):
@@ -135,6 +142,9 @@ class Context(object):
     def __getattr__(self, name):
         return self._models[current_app.tenant][name]
 
-    def get(self, name):
+    def get(self, name, tenant=None):
         """ Beside attribute access, model can be accessed by name. """
-        return self._models[current_app.tenant][name]
+        if tenant:
+            return self._models[tenant][name]
+        else:
+            return self._models[current_app.tenant][name]

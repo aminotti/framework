@@ -25,13 +25,16 @@ from ..base import Mapper
 
 
 class ORM(Mapper):
+    @classmethod
+    def setupConnection(cls, uri, tenant):
+        return dict()
 
     @staticmethod
     def whoami():
         return "LDAP"
 
     @classmethod
-    def update(cls, domain, data):
+    def update(cls, domain, ressource):
         # Parent method check data and return secured data to save
         data2save = super(ORM, cls).update(domain, data)
 

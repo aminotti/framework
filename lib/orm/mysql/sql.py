@@ -21,23 +21,13 @@
 #
 ##############################################################################
 
-from ..base import Mapper
 
-
-class ORM(Mapper):
+class Sql(object):
+    """ Generate SQL requests. """
     @classmethod
-    def setupConnection(cls, uri, tenant):
-        return dict()
-
-    @staticmethod
-    def whoami():
-        return "IMAP"
-
-    @classmethod
-    def update(cls, domain, ressource):
-        # Parent method check data and return secured data to save
-        data2save = super(ORM, cls).update(domain, data)
-
-    def write(self):
-        # Parent method test if require fields are set
-        super(ORM, self).write()
+    def _createTableSQL(cls):
+        sql = "CREATE TABLE IF NOT EXISTS {}.{} (\n".format(cls._dbname, cls.__name__.lower())
+        # sql += self.__getColumnsSQL(sqlcls)
+        sql += "cm INT(3) NOT NULL DEFAULT '180'"
+        sql += ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+        return sql

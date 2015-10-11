@@ -81,14 +81,18 @@ class AppDispatcher(object):
         self.instances = {}
 
     def _get_application(self, host):
-        host = host.split(':')[0]
-        tenant = ''.join(self.regex.findall(host))
+        if conf.multi_tenancy:
+            host = host.split(':')[0]
+            tenant = ''.join(self.regex.findall(host))
 
-        if not tenant:
-            error("Regular expression ' {}' don't match with '{}', please check 'tenancy' option".format(conf.tenancy, host))
-            return NotFound()
+            if not tenant:
+                error("Regular expression ' {}' don't match with '{}', please check 'tenancy' option".format(conf.tenancy, host))
+                return NotFound()
 
-        debug("Tenancy's prefix for host '{}' : '{}'.".format(host, tenant))
+            debug("Tenancy's prefix for host '{}' : '{}'.".format(host, tenant))
+        else:
+            debug("Multi-tenancy is disabled.")
+            tenant = "yameo"
 
         with self.lock:
             app = self.instances.get(tenant)
@@ -103,7 +107,7 @@ class AppDispatcher(object):
 
     def _create_app(self, tenant):
         if conf.auto_create_db:
-            # TODO Creation auto de db et populate
+            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
             pass
 
         app = WSGIApp(__name__)

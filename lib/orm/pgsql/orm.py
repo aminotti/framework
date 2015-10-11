@@ -25,17 +25,16 @@ from ..base import Mapper
 
 
 class ORM(Mapper):
-
-    def execute(self):
-        """ Model.execute(sqlquery) : Execute une req SQL sur la db config pour ce model et renvoi le resultat brut de la requete. """
-        raise NotImplementedError
+    @classmethod
+    def setupConnection(cls, uri, tenant):
+        return dict()
 
     @staticmethod
     def whoami():
         return "PostgreSQL"
 
     @classmethod
-    def update(cls, domain, data):
+    def update(cls, domain, ressource):
         # Parent method check data and return secured data to save
         data2save = super(ORM, cls).update(domain, data)
 

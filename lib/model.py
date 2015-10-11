@@ -30,7 +30,7 @@ import app.context
 
 class Builder(object):
     @classmethod
-    def get(cls, name, model):
+    def get(cls, name, model, tenant):
         d = dict()  # dictionnary's attribute exclude from inherance
         f = dict()  # Fields, indexes and function (use for inherance)
         fields = dict()
@@ -69,7 +69,6 @@ class Builder(object):
 
         d['_uri'] = cls._setURI(d.get('_uri', 'default'))
         mod = __import__('lib.orm.{}'.format(cls.getScheme(d['_uri'])), globals(), locals(), ['ORM'], -1)
-        # TODO appeler une fonction static de 'mod' (i.e. de lib.orm.mysql ou de lib.orm.mysql.ORM) pour parser l'URI et set des attribut privé avec dans 'd' (sera utile pour lib orm)
         b = mod.ORM
 
         return (name, (b,), d, f)
