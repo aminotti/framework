@@ -104,7 +104,11 @@ def default_routes(*args, **kwargs):
     name = str(request.url_rule).split('/')[1].capitalize()
     ressource = app.context.models.get(name)
 
-    return ressource.dispatchMethods(kwargs)
+    domain = list()
+    for key, val in kwargs.items():
+        domain.append((key, '=', val))
+
+    return ressource.dispatchMethods(domain)
 
 
 def default_post_routes():

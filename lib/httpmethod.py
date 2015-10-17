@@ -52,29 +52,29 @@ class HTTPMethods(object):
     """
 
     @classmethod
-    def dispatchMethods(cls, condition=None, relationship=None):
-        cond = condition
+    def dispatchMethods(cls, domain=None, relationship=None):
+        dom = domain
         """
-        if type(condition) is dict:
-            cls.secureData(condition)
+        if type(domain) is dict:
+            cls.secureData(domain)
             of = list()
-            for key, val in condition.items():
+            for key, val in domain.items():
                 of.append(ORMFilter.eq(key, val))
-            condition = ORMFilter.AND(of)
-        elif condition is not None:
-            raise Core400Exception("Invalid filter type : '{}'".format(str(condition)))
+            domain = ORMFilter.AND(of)
+        elif domain is not None:
+            raise Core400Exception("Invalid filter type : '{}'".format(str(domain)))
         """
 
         if request.method == 'GET':
-            return cls._getHTTP(condition, relationship)
+            return cls._getHTTP(domain, relationship)
         elif request.method == 'PUT':
-            if cond is None or sorted(cls._Identifiers) != sorted(cond.keys()):
+            if dom is None or sorted(cls._Identifiers) != sorted(dom.keys()):
                 raise Core500Exception("Invalid identifiers.")
-            return cls._putHTTP(condition, cond)
+            return cls._putHTTP(domain, dom)
         elif request.method == 'PATCH':
-            return cls._patchHTTP(condition)
+            return cls._patchHTTP(domain)
         elif request.method == 'DELETE':
-            return cls._deleteHTTP(condition)
+            return cls._deleteHTTP(domain)
         elif request.method == 'POST':
             return cls._postHTTP()
 

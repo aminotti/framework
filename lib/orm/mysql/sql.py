@@ -22,10 +22,23 @@
 ##############################################################################
 
 import datetime
+from .sqlfilter import SQLFilter
 
 
 class Sql(object):
     """ Generate SQL requests. """
+    @classmethod
+    def _deleteSQL(cls, domain):
+        sqlFilter = SQLFilter(domain)
+        if sqlFilter:
+            sql = "DELETE FROM {}.{} ".format(cls._dbname, cls.__name__.lower())
+            sql += "WHERE "
+            sql += sqlFilter.condition
+            sql += ";"
+            return sql, sqlFilter.data
+        else:
+            raise Core400Exception("Condition needed to process delete")
+
     @classmethod
     def _createTableSQL(cls):
         sql = "CREATE TABLE IF NOT EXISTS {}.{} (\n".format(cls._dbname, cls.__name__.lower())
@@ -49,6 +62,7 @@ class Sql(object):
         # Indexes
         sql += cls.__getIndexesSQL()
 
+        # TODO gerer creation foreign key
         """
         # Foreign keys
         for fk in lib.orm.one2many[sqlcls.__name__]:

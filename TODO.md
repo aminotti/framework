@@ -30,11 +30,14 @@ Fichier binaire ./lib/orm/pool.pyc correspondant
 ./lib/orm/mysql/orm.py:65:        # TODO create table if not exist
 ./lib/orm/mysql/orm.py:66:        # TODO exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;
 ./lib/orm/mysql/orm.py:67:        # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
-./lib/orm/mysql/sql.py:189:        # TODO gerer binary field pour create columns
+./lib/orm/mysql/sql.py:65:        # TODO gerer creation foreign key
+./lib/orm/mysql/sql.py:203:        # TODO gerer binary field pour create columns
 ./lib/orm/base.py:62:                # TODO gerer relations
 ./lib/orm/base.py:75:    # TODO Add internal fields (on backend herited class??)
 ./lib/orm/base.py:130:            # TODO Check ACL RW allowed
 ./lib/orm/base.py:133:            # TODO trigger workflow event onchange
-./lib/orm/base.py:159:            # TODO Check ACL RO or RW allowed
-./lib/orm/base.py:213:        # TODO implement en retirant les champs mis a copy=False
-./lib/orm/base.py:266:        # TODO renvoyer l'id pour une creation!!
+./lib/orm/base.py:153:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:160:            # TODO Check ACL RO or RW allowed
+./lib/orm/base.py:170:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:215:        # TODO implement en retirant les champs mis a copy=False
+./lib/orm/base.py:268:        # TODO renvoyer l'id pour une creation!!

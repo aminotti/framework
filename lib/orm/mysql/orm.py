@@ -79,6 +79,11 @@ class ORM(Mapper, Sql):
         super(ORM, self).write()
 
     @classmethod
+    def delete(cls, domain):
+        req, data = cls._deleteSQL(domain)
+        cls._exeSQL(req, data)
+
+    @classmethod
     def _insertSQL(cls, request, data=tuple()):
         """ Return last ID created """
         c = cls._query(request, data)

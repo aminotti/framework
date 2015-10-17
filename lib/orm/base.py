@@ -150,6 +150,7 @@ class Mapper(HTTPMethods):
             if (not field.require or value) and not field.compute:
                 field.check(value)
                 self._fields[name] = value
+        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
         else:
             object.__setattr__(self, name, value)
 
@@ -166,6 +167,7 @@ class Mapper(HTTPMethods):
                 return self._fields[name]
             else:
                 return self._fields[name]
+        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
         else:
             return object.__getattr__(self, name)
 
