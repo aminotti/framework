@@ -80,7 +80,6 @@ class Field(object):
         if self.identifier:
             self.require = True
             self.default = None
-            # don"t set unique and index here because it depend if multi-identifier or not.
         else:
             self.require = require
         self.unique = unique

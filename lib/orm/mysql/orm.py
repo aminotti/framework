@@ -66,7 +66,8 @@ class ORM(Mapper, Sql):
         # TODO exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;
         # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
         # add columns or modify columns
-        print cls._exeSQL(cls._createTableSQL())
+        # cls._exeSQL(cls._dropTableSQL())
+        cls._exeSQL(cls._createTableSQL())
 
     @classmethod
     def update(cls, domain, ressource):

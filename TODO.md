@@ -25,17 +25,16 @@
 ./lib/context.py:78:        # TODO checker champs requis présent dans yaml et bon type associé
 Fichier binaire ./lib/orm/pool.pyc correspondant
 ./lib/orm/pool.py:33:.. todo::
-./lib/orm/fields.py:190:        # TODO implémenter la conversion à la bonne taille
+./lib/orm/fields.py:189:        # TODO implémenter la conversion à la bonne taille
 ./lib/orm/mysql/orm.py:56:        # TODO Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)
 ./lib/orm/mysql/orm.py:65:        # TODO create table if not exist
 ./lib/orm/mysql/orm.py:66:        # TODO exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;
 ./lib/orm/mysql/orm.py:67:        # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
-./lib/orm/base.py:33:    # TODO remplacer _<fieldname> par _<fieldname>_field pour permettre de créer des champs de meme nom que les attribute privés
-./lib/orm/base.py:67:                # TODO gerer relations
-./lib/orm/base.py:80:    # TODO Add internal fields (on backend herited class??)
-./lib/orm/base.py:135:            # TODO Check ACL RW allowed
-./lib/orm/base.py:138:            # TODO appeler les differentes compute (pas implementer car compte exec qd acces au champe compute)
-./lib/orm/base.py:139:            # TODO trigger workflow event onchange
-./lib/orm/base.py:165:            # TODO Check ACL RO or RW allowed
-./lib/orm/base.py:219:        # TODO implement en retirant les champs mis a copy=False
-./lib/orm/base.py:272:        # TODO renvoyer l'id pour une creation!!
+./lib/orm/mysql/sql.py:189:        # TODO gerer binary field pour create columns
+./lib/orm/base.py:62:                # TODO gerer relations
+./lib/orm/base.py:75:    # TODO Add internal fields (on backend herited class??)
+./lib/orm/base.py:130:            # TODO Check ACL RW allowed
+./lib/orm/base.py:133:            # TODO trigger workflow event onchange
+./lib/orm/base.py:159:            # TODO Check ACL RO or RW allowed
+./lib/orm/base.py:213:        # TODO implement en retirant les champs mis a copy=False
+./lib/orm/base.py:266:        # TODO renvoyer l'id pour une creation!!

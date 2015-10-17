@@ -1,5 +1,5 @@
 name: Booking
-uri: mysql://root:ocfad@127.0.0.1/test
+uri: mysql://root:ocfad@127.0.0.1/yameo
 fields:
     nom:
         type: string
@@ -9,7 +9,14 @@ fields:
     email:
         type:  email
     reservation:
-        type: date
+        type: time
+        default: '12:30'
     name:
         type: string
         fieldName: 'room_name'
+    jour:
+        type: date
+        default: 2015-03-01
+    meeting:
+        type: datetime
+        default: 2015-03-01T12:45:00

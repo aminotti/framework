@@ -97,11 +97,11 @@ class Context(object):
                     # Add defaults routes
                     identifiers = list()
                     for arg in obj._identifiers:
-                        if isinstance(obj.__dict__['_' + arg], IntField):
+                        if isinstance(obj.__dict__['_' + arg + '_field'], IntField):
                             identifiers.append("<int:{}>".format(arg))
-                        elif isinstance(obj.__dict__['_' + arg], CurrencyField) or isinstance(obj.__dict__['_' + arg], DecimalField):
+                        elif isinstance(obj.__dict__['_' + arg + '_field'], CurrencyField) or isinstance(obj.__dict__['_' + arg + '_field'], DecimalField):
                             identifiers.append("<float:{}>".format(arg))
-                        elif isinstance(obj.__dict__['_' + arg], UrlField):
+                        elif isinstance(obj.__dict__['_' + arg + '_field'], UrlField):
                             identifiers.append("<path:{}>".format(arg))
                         else:
                             identifiers.append("<{}>".format(arg))

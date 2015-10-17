@@ -30,7 +30,6 @@ from ..httpmethod import HTTPMethods
 
 
 class MapperMetaCls(type):
-    # TODO remplacer _<fieldname> par _<fieldname>_field pour permettre de créer des champs de meme nom que les attribute privés
     def __new__(mcs, name, bases, d):
         for parent in bases:
             if parent.__base__.__name__ is 'Mapper':
@@ -47,10 +46,6 @@ class MapperMetaCls(type):
                     d['_identifiers'].append(idressource)
                     d[idressource] = IntField(size=6, zerofill=True, unsigned=True, autoIncrement=True, identifier=True, unique=True)
 
-                # Create index on identifier
-                d['idxidentifiers'] = Index(d['_identifiers'][:])
-                d['_indexes'].append('idxidentifiers')
-
                 # Create index for Field with index attribute set to True
                 tmp = dict()
                 idx = list()
@@ -62,7 +57,7 @@ class MapperMetaCls(type):
                 d['_indexes'].extend(idx)
 
                 for field in d['_columns']:
-                    d['_' + field] = d.pop(field)
+                    d['_' + field + '_field'] = d.pop(field)
 
                 # TODO gerer relations
                 # one2many[name] = list()
@@ -101,7 +96,7 @@ class Mapper(HTTPMethods):
         computed = dict()
 
         for fieldname in self._columns:
-            field = getattr(self, '_' + fieldname)
+            field = getattr(self, '_' + fieldname + '_field')
 
             # Load defaults values to fields
             self._fields[fieldname] = field.default
@@ -131,11 +126,10 @@ class Mapper(HTTPMethods):
 
     def __setattr__(self, name, value):
         if name in self._columns:
-            field = getattr(self, '_' + name)
+            field = getattr(self, '_' + name + '_field')
             # TODO Check ACL RW allowed
             # Syntax/type checks
             field.check(value)
-            # TODO appeler les differentes compute (pas implementer car compte exec qd acces au champe compute)
             # TODO trigger workflow event onchange
             # Call On change method
             if field.onchange:
@@ -161,7 +155,7 @@ class Mapper(HTTPMethods):
 
     def __getattr__(self, name):
         if name in self._columns:
-            field = getattr(self, '_' + name)
+            field = getattr(self, '_' + name + '_field')
             # TODO Check ACL RO or RW allowed
             # Perform computed Fields
             if field.compute:
@@ -271,7 +265,7 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
         """ Create or update the ressource. """
         # TODO renvoyer l'id pour une creation!!
         for fieldname in self._columns:
-            field = getattr(self, '_' + fieldname)
+            field = getattr(self, '_' + fieldname + '_field')
             if field.require and not self._fields[fieldname]:
                 raise Core400Exception("Attribut '{}' is required".format(fieldname))
 
