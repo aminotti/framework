@@ -38,4 +38,7 @@ class ORM(Mapper):
         pass
 
     def write(self):
+        # Parent method test if require fields are set
+        super(ORM, self).write()
         print "Save ressources"
+        return None

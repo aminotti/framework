@@ -27,6 +27,27 @@ from .sqlfilter import SQLFilter
 
 class Sql(object):
     """ Generate SQL requests. """
+    def _replaceSQL(self):
+        f, v = self._prepareData()
+        sql = "REPLACE INTO {}.{} ({})\n".format(self._dbname, self.__class__.__name__.lower(), ", ".join(f))
+        sql += "VALUES ({});".format(", ".join(['%s' for i in range(0, len(f))]))
+        return sql, v
+
+    def _updateSQL(self, data2save, domain):
+        f, v = self._prepareData(data2save)
+        sqlFilter = SQLFilter(domain)
+
+        if sqlFilter:
+            sql = "UPDATE {}.{} ".format(self._dbname, self.__class__.__name__.lower())
+            sql += "SET {} = %s ".format(" = %s, ".join(f))
+            sql += "WHERE "
+            sql += sqlFilter.condition
+            sql += ";"
+            v.extend(sqlFilter.data)
+            return sql, v
+        else:
+            raise Core400Exception("Condition needed to process update")
+
     @classmethod
     def _deleteSQL(cls, domain):
         sqlFilter = SQLFilter(domain)
@@ -49,6 +70,59 @@ class Sql(object):
     @classmethod
     def _dropTableSQL(cls):
         return "DROP TABLE IF EXISTS {}.{};".format(cls._dbname, cls.__name__.lower())
+
+    # Key : Convert key name to SQLcol
+    # Value : Convert python type to SQL type
+    def _prepareData(self, data2save=None):
+        k = list()
+        v = list()
+
+        for colname in self._columns:
+            col = getattr(self, "_{}_field".format(colname), None)
+            if col is None:
+                raise Core404Exception("Attribute '" + colname + "' doesn't exist.")
+            val = getattr(self, colname)
+
+            # Use for UPDATE (partial fields), not for INSERT/REPLACE
+            if data2save and (colname not in data2save):
+                procceed = False
+            else:
+                procceed = True
+
+            if not col.compute and val and procceed:
+                # Colname
+                k.append(col.fieldName or colname.lower())
+
+                # Value
+                if type(val) is list:
+                    v.append(",".join(val))
+                else:
+                    v.append(val)
+                """
+                elif type(value) is FileStorage:
+                    fileExtension = os.path.splitext(value.filename)[1]
+                    filename = uuid.uuid4().hex
+                    setattr(sqlobj, key, json.dumps({'filename': filename, 'type': value.mimetype, 'extension': fileExtension}))
+                    if getattr(sqlobj.__class__, key, None).backendFS:
+                        if lib.orm.data_prefix:
+                            prefix = lib.orm.data_prefix
+                        else:
+                            prefix = ''
+                        if type(col) is lib.orm.ImageField:
+                            value = col.convert(value.stream).getvalue()
+                            f = io.FileIO(os.path.join(lib.orm.DATA_DIR, prefix, filename + fileExtension), 'w')
+                            f.write(value)
+                            f.close()
+                        else:
+                            value.save(os.path.join(lib.orm.DATA_DIR, prefix, filename + fileExtension))
+                    else:
+                        if type(col) is lib.orm.ImageField:
+                            setattr(sqlobj, key + '_data', col.convert(value.stream).getvalue())
+                        else:
+                            setattr(sqlobj, key + '_data', value.stream.getvalue())
+                """
+
+        return (k, v)
 
     @classmethod
     def __getColumnsSQL(cls):

@@ -78,10 +78,8 @@ class Field(object):
         self.default = default
         self.identifier = identifier
         if self.identifier:
-            self.require = True
             self.default = None
-        else:
-            self.require = require
+        self.require = require
         self.unique = unique
         self.copy = copy
         self.index = index
@@ -390,6 +388,8 @@ class IntField(Field):
         self.zerofill = kw.pop('zerofill', False)
         self.unsigned = kw.pop('unsigned', False)
         self.autoIncrement = kw.pop('autoIncrement', False)
+        if self.autoIncrement:
+            kw['require'] = False
         super(IntField, self).__init__(**kw)
 
     def check(self, data):

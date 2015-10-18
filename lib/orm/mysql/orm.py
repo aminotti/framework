@@ -69,25 +69,20 @@ class ORM(Mapper, Sql):
         # cls._exeSQL(cls._dropTableSQL())
         cls._exeSQL(cls._createTableSQL())
 
-    @classmethod
-    def update(cls, domain, ressource):
-        # Parent method check data and return secured data to save
-        data2save = super(ORM, cls).update(domain, data)
+    def update(self, data2save, domain):
+        req, data = self._updateSQL(data2save, domain)
+        self._exeSQL(req, data)
 
     def write(self):
         # Parent method test if require fields are set
         super(ORM, self).write()
+        req, data = self._replaceSQL()
+        self._exeSQL(req, data)
 
     @classmethod
     def delete(cls, domain):
         req, data = cls._deleteSQL(domain)
         cls._exeSQL(req, data)
-
-    @classmethod
-    def _insertSQL(cls, request, data=tuple()):
-        """ Return last ID created """
-        c = cls._query(request, data)
-        return c.lastrowid
 
     @classmethod
     def _selecSQL(cls, request, data=tuple()):

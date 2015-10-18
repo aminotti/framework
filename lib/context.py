@@ -39,7 +39,9 @@ class Context(object):
 
     @classmethod
     def register(cls, tenant, yamlfile, modname):
-        """ Register all YAML model's file for later load """
+        """ Register all YAML model's file for later load. """
+        """ Get data from <ressource>.yaml and <ressource>.py and store them in _regiteredModels[<tenant>][<ressource>] list. """
+        # Load model's function from <ressource>.py
         functions = dict()
         root, ext = os.path.splitext(yamlfile)
         path, name = os.path.split(root)
@@ -79,7 +81,10 @@ class Context(object):
         if tenant in cls._regiteredModels:
             # Sort by sequence
             for key, val in cls._regiteredModels[tenant].items():
+                # Sort data from yaml file
                 cls._regiteredModels[tenant][key] = sorted(val, key=lambda row: row['sequence'])
+                # append data from DB
+                # TODO #200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)
 
             # Load models by tenant
             models = dict()

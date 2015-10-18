@@ -171,6 +171,29 @@ class Mapper(HTTPMethods):
         else:
             return object.__getattr__(self, name)
 
+    def setIdFromDomain(self, domain):
+        if type(domain) is tuple:
+            self._setIdFromDomainTuple(domain)
+        elif type(domain) is list:
+            self._setIdFromDomainList(domain)
+        else:
+            raise Core400Exception("Invalid domain for identifiers : {}".format(str(domain)))
+
+    def _setIdFromDomainList(self, domain):
+        nbid = 0
+        for dom in domain:
+            if type(dom) is tuple:
+                self._setIdFromDomainTuple(dom)
+                nbid += 1
+        if nbid < len(self._identifiers):
+            raise Core500Exception("All identifiers must be set".format(domain))
+
+    def _setIdFromDomainTuple(self, domain):
+        if len(domain) != 3 or domain[0] not in self._identifiers:
+            raise Core400Exception("Bad identifier : '{}'".format(domain[0]))
+        else:
+            setattr(self, domain[0], domain[2])
+
     @classmethod
     def setupConnection(cls, uri, tenant):
         """ Add connections to pools and set backend specifics attributes. """
@@ -248,14 +271,16 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
         error("search() method not implemented for {}".format(cls.whoami()))
         raise NotImplementedError
 
-    @classmethod
-    def update(cls, domain, ressource):
+    def update(self, data2save, domain):
         """ Update several records base on the search domain.
+        Use data store in instance to do sanity and security check.
+        Use data2save to select fields to save.
 
-        :param domain: search filter
-        :param ressource: A ressource instance use to store data to update.
+        :param list data2save: name of ressource's fields to save.
+        :param domain: search filter.
         """
-        data2save = [ressource[k] for k in data.keys()]
+        error("update() method not implemented for {}".format(cls.whoami()))
+        raise NotImplementedError
 
     @classmethod
     def delete(cls, domain):
@@ -264,8 +289,12 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
         raise NotImplementedError
 
     def write(self):
-        """ Create or update the ressource. """
-        # TODO renvoyer l'id pour une creation!!
+        """
+        Create or update the ressource.
+
+        @return: None or id of created ressource
+        """
+        # Check that require's fields are set
         for fieldname in self._columns:
             field = getattr(self, '_' + fieldname + '_field')
             if field.require and not self._fields[fieldname]:

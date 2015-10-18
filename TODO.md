@@ -17,21 +17,22 @@
 ./app/module.py:229:        # TODO Remove workflows
 ./app/api.py:45:            # Run method if one of the TODO ameliorer commentaire
 ./app/multitenancy.py:110:            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
-./lib/httpmethod.py:39:    # TODO gerer different input et ouput (csv, json,...)
-./lib/httpmethod.py:128:        r = Response(obj2json(data), headers=cls.__headers)  # TODO change convert method according to client 'Accept' header
-./lib/httpmethod.py:143:            url = request.base_url + '/' + str(rowid)  # TODO check que l'URL est bonne
-./lib/httpmethod.py:175:        # dico = cls.getDataFromContentType() TODO
-./lib/httpmethod.py:217:            # TODO Handle multipart/mixed
-./lib/context.py:78:        # TODO checker champs requis présent dans yaml et bon type associé
+./lib/httpmethod.py:34:    # TODO gerer different input et ouput de facon modulaire (csv, json, bjson...)
+./lib/httpmethod.py:35:    # TODO Gerer les accept et content type header
+./lib/httpmethod.py:101:        r = Response(obj2json(data), headers=cls.__headers)  # TODO change convert method according to client 'Accept' header
+./lib/httpmethod.py:173:            pass  # TODO implementaire pour binary
+./lib/httpmethod.py:190:            # TODO Handle multipart/mixed
+./lib/context.py:80:        # TODO checker champs requis présent dans yaml et bon type associé
+./lib/context.py:87:                # TODO #200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)
 Fichier binaire ./lib/orm/pool.pyc correspondant
 ./lib/orm/pool.py:33:.. todo::
-./lib/orm/fields.py:189:        # TODO implémenter la conversion à la bonne taille
+./lib/orm/fields.py:187:        # TODO implémenter la conversion à la bonne taille
 ./lib/orm/mysql/orm.py:56:        # TODO Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)
 ./lib/orm/mysql/orm.py:65:        # TODO create table if not exist
 ./lib/orm/mysql/orm.py:66:        # TODO exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;
 ./lib/orm/mysql/orm.py:67:        # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
-./lib/orm/mysql/sql.py:65:        # TODO gerer creation foreign key
-./lib/orm/mysql/sql.py:203:        # TODO gerer binary field pour create columns
+./lib/orm/mysql/sql.py:139:        # TODO gerer creation foreign key
+./lib/orm/mysql/sql.py:277:        # TODO gerer binary field pour create columns
 ./lib/orm/base.py:62:                # TODO gerer relations
 ./lib/orm/base.py:75:    # TODO Add internal fields (on backend herited class??)
 ./lib/orm/base.py:130:            # TODO Check ACL RW allowed
@@ -39,5 +40,4 @@ Fichier binaire ./lib/orm/pool.pyc correspondant
 ./lib/orm/base.py:153:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
 ./lib/orm/base.py:160:            # TODO Check ACL RO or RW allowed
 ./lib/orm/base.py:170:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:215:        # TODO implement en retirant les champs mis a copy=False
-./lib/orm/base.py:268:        # TODO renvoyer l'id pour une creation!!
+./lib/orm/base.py:238:        # TODO implement en retirant les champs mis a copy=False

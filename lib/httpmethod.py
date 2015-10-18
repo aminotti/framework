@@ -24,53 +24,26 @@
 import os
 from flask import Response
 from flask import request
+
 from .exceptions import *
-
-
-"""
-from lib.jsonconvert import json2python, obj2json, dict2json
-from config import conf
-
-from lib.orm import ORMFilter, BinaryField, SQLRelationship, one2many
-"""
+from lib import contenttype
+# from lib.orm import ORMFilter, BinaryField, SQLRelationship, one2many
 
 
 class HTTPMethods(object):
-    # TODO gerer different input et ouput (csv, json,...)
+    # TODO gerer different input et ouput de facon modulaire (csv, json, bjson...)
+    # TODO Gerer les accept et content type header
     __headers = {"Content-type": "application/json;charset=UTF-8"}
-
-    """
-    @classmethod
-    def secureData(cls, data):
-        for key, val in data.items():
-            # Check field name
-            if key not in cls._columns:
-                raise Core400Exception("Bad attribute : '{}'".format(key))
-            else:
-                # Check value type & value syntax
-                getattr(cls, key).check(val)
-    """
 
     @classmethod
     def dispatchMethods(cls, domain=None, relationship=None):
-        dom = domain
-        """
-        if type(domain) is dict:
-            cls.secureData(domain)
-            of = list()
-            for key, val in domain.items():
-                of.append(ORMFilter.eq(key, val))
-            domain = ORMFilter.AND(of)
-        elif domain is not None:
-            raise Core400Exception("Invalid filter type : '{}'".format(str(domain)))
-        """
+        if domain:
+            cls._checkDomains(domain)
 
         if request.method == 'GET':
             return cls._getHTTP(domain, relationship)
         elif request.method == 'PUT':
-            if dom is None or sorted(cls._Identifiers) != sorted(dom.keys()):
-                raise Core500Exception("Invalid identifiers.")
-            return cls._putHTTP(domain, dom)
+            return cls._putHTTP(domain)
         elif request.method == 'PATCH':
             return cls._patchHTTP(domain)
         elif request.method == 'DELETE':
@@ -130,52 +103,42 @@ class HTTPMethods(object):
         return r
         """
 
+    # Ressource creation with auto id
     @classmethod
     def _postHTTP(cls):
-        """
         dico = cls.getDataFromContentType()
-        """
-
-        ressource = cls(dico)
-        idressource = ressource.create()
-
-        if rowid is not None:
-            url = request.base_url + '/' + str(rowid)  # TODO check que l'URL est bonne
-            data = dict2json({"Location": url})
-            r = Response(data, headers=cls.__headers)
-        else:
-            r = Response(None)
-            del r.headers['content-type']
-        r.status_code = 201
-        return r
-
-    # Complete ressource's update or creation
-    @classmethod
-    def _putHTTP(cls, domain, identifiers):
-        """
-        dico = cls.getDataFromContentType()
-        if dico:
-            dico.update(identifiers)
-        else:
-            dico = identifiers
-        """
-        # on à ajouté au dico le/les id de la ressouce et on creer un instance (pas besoin de lire la DB)
 
         ressource = cls(dico)
         ressource.write()
 
         r = Response(None)
         del r.headers['content-type']
-        r.status_code = 204
+        r.status_code = 201
         return r
 
-    # Partial update on one or several ressource
+    # Ressource creation with ids provided
     @classmethod
-    def _patchHTTP(cls, domain):
-        # dico = cls.getDataFromContentType() TODO
+    def _putHTTP(cls, domain):
+        dico = cls.getDataFromContentType()
+        if type(dico) is not dict:
+            raise Core400Exception("Bad content.")
 
         ressource = cls(dico)
-        cls.update(domain, ressource)
+        ressource.setIdFromDomain(domain)
+        ressource.write()
+
+        r = Response(None)
+        del r.headers['content-type']
+        r.status_code = 201
+        return r
+
+    # Update on one or several ressource
+    @classmethod
+    def _patchHTTP(cls, domain):
+        dico = cls.getDataFromContentType()
+
+        ressource = cls(dico)
+        ressource.update(dico.keys(), domain)
 
         r = Response(None)
         del r.headers['content-type']
@@ -192,17 +155,26 @@ class HTTPMethods(object):
         r.status_code = 204
         return r
 
-    """
     @classmethod
     def getDataFromContentType(cls):
-        if 'application/json' in request.headers['Content-Type']:
-            data = json2python(request.data)
-            cls.secureData(data)
-            return data
-        elif 'multipart/form-data' in request.headers['Content-Type']:
+        # http://www.w3.org/Protocols/rfc1341/4_Content-Type.html
+        """ Devrais accepter que multipart/form-data, multipart/mixed,type defini dans lib.contenttype ou binaire
+            multipart/form-data et multipart/mixed devrais accepter que type defini dans lib.contenttype et binaire
+            Type binaire :
+            * GET|PUT /binary/<ressource>/<id1>[/<id2>]/attribute.ext
+            * del quand lattribut de la ressource est set a NULL (au lieux de contenir URL)
+        """
+        for ctype, conv in contenttype.Converter.items():
+            if ctype in request.headers['Content-Type']:
+                return conv.toDict(request.data)
+                break
+
+        if 'multipart/form-data' in request.headers['Content-Type']:
+            pass  # TODO implementaire pour binary
+            return dict()
+            """
             for val in request.form.values():
                 dico = json2python(val)
-                cls.secureData(dico)
             for key, val in request.files.items():
                 # Check field name and type
                 col = getattr(cls, key, None)
@@ -213,12 +185,43 @@ class HTTPMethods(object):
 
                 dico[key] = val
                 return dico
+            """
         elif 'multipart/mixed' in request.headers['Content-Type']:
             # TODO Handle multipart/mixed
             print request.data
             return dict()
-        elif '' in request.headers['Content-Type']:
-            return None
         else:
-            raise Core404Exception("Forbidden Content-Type '{}'. Accept only 'application/json' or 'multipart/form-data'".format(request.headers['Content-Type']))
-    """
+            raise Core404Exception("Forbidden Content-Type '{}'".format(request.headers['Content-Type']))
+
+    @classmethod
+    def _checkDomains(cls, domain):
+        if type(domain) is tuple:
+            cls._checkDomainTuple(domain)
+        elif type(domain) is list:
+            cls._checkDomainList(domain)
+        else:
+            raise Core400Exception("Invalid domain : {}, Must be list or tuple".format(str(domain)))
+
+    @classmethod
+    def _checkDomainList(cls, domain):
+        for dom in domain:
+            if type(dom) is str and dom in ['|', '&']:
+                pass
+            elif type(dom) is tuple:
+                cls._checkDomainTuple(dom)
+            elif type(dom) is list:
+                cls._checkDomainList(dom)
+            else:
+                raise Core500Exception("Invalid domain part : {}".format(str(dom)))
+
+    @classmethod
+    def _checkDomainTuple(cls, domain):
+        if len(domain) != 3:
+            raise Core500Exception("Invalid tuple for domain {}".format(domain))
+
+        # Check field name
+        if domain[0] not in cls._columns:
+            raise Core400Exception("Bad attribute : '{}'".format(domain[0]))
+        else:
+            # Check value type & value syntax
+            getattr(cls, "_{}_field".format(domain[0])).check(domain[2])

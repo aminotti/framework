@@ -76,7 +76,7 @@ class SQLFilter(object):
         return ['(' + operator.join(condition) + ')', data]
 
     def _parseTuple(self, domain):
-        if len(domain) > 3:
+        if len(domain) != 3:
             raise Core500Exception("Invalid tuple for domain {}".format(domain))
 
         # Operateur de comparaison : domain[1]
