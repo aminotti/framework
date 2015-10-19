@@ -1,43 +1,64 @@
-./app/module.py:113:        # TODO implementer install module avec ajout de route
-./app/module.py:125:        # TODO ajout de route
-./app/module.py:134:        # TODO implementer remove module avec ajout de route
-./app/module.py:156:        # TODO remplacer tout le bloc pas chargement depuis DB des module deja installé pour ce tenant
-./app/module.py:168:            # TODO gerer install des dependances python qd elle sont pas présente
-./app/module.py:169:            # TODO gerer dependance d'autre module => on ajout tous les modules dont il depend (doit etre recursif) à cls.installed
-./app/module.py:177:            # TODO import DATA
-./app/module.py:182:            # TODO call onRemove() from all module's model
-./app/module.py:183:            # TODO gerer dependance d'autre module => on supprime tous les modules qui depende de lui (doit etre recursif)
-./app/module.py:188:        # TODO save installed to DB
-./app/module.py:220:        # TODO Import view (xml) for current tenant/app
-./app/module.py:221:        # TODO Import data (json, yaml, csv) for current tenant/app
-./app/module.py:222:        # TODO Import workflow (xml ? yaml?) for current tenant/app
-./app/module.py:226:        # TODO si docker avec plusieurs instance de lancé, killer les autres instances
-./app/module.py:227:        # TODO Remove views
-./app/module.py:228:        # TODO Remove datas
-./app/module.py:229:        # TODO Remove workflows
-./app/api.py:45:            # Run method if one of the TODO ameliorer commentaire
-./app/multitenancy.py:110:            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
-./lib/httpmethod.py:34:    # TODO gerer different input et ouput de facon modulaire (csv, json, bjson...)
-./lib/httpmethod.py:35:    # TODO Gerer les accept et content type header
-./lib/httpmethod.py:101:        r = Response(obj2json(data), headers=cls.__headers)  # TODO change convert method according to client 'Accept' header
-./lib/httpmethod.py:173:            pass  # TODO implementaire pour binary
-./lib/httpmethod.py:190:            # TODO Handle multipart/mixed
-./lib/context.py:80:        # TODO checker champs requis présent dans yaml et bon type associé
-./lib/context.py:87:                # TODO #200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)
-Fichier binaire ./lib/orm/pool.pyc correspondant
-./lib/orm/pool.py:33:.. todo::
-./lib/orm/fields.py:187:        # TODO implémenter la conversion à la bonne taille
-./lib/orm/mysql/orm.py:56:        # TODO Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)
-./lib/orm/mysql/orm.py:65:        # TODO create table if not exist
-./lib/orm/mysql/orm.py:66:        # TODO exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;
-./lib/orm/mysql/orm.py:67:        # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
-./lib/orm/mysql/sql.py:139:        # TODO gerer creation foreign key
-./lib/orm/mysql/sql.py:277:        # TODO gerer binary field pour create columns
-./lib/orm/base.py:62:                # TODO gerer relations
-./lib/orm/base.py:75:    # TODO Add internal fields (on backend herited class??)
-./lib/orm/base.py:130:            # TODO Check ACL RW allowed
-./lib/orm/base.py:133:            # TODO trigger workflow event onchange
-./lib/orm/base.py:153:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:160:            # TODO Check ACL RO or RW allowed
-./lib/orm/base.py:170:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:238:        # TODO implement en retirant les champs mis a copy=False
+# TODO List
+
+## Next
+
+- GET/search()/get()
+- creer model ORM pour save conf DB par tenant en .py (pas .yaml)
+- Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
+- Ameliorer maj structure DB qd update/upgrade/remove module
+
+
+## Création dynamique du model à partir du yaml
+
+- [x] Héritage classic : meme attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
+- [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
+- [x] model logic (.py associé au .yalm avec utilisation API)
+
+## Implementer les fonctions de base de ORM
+
+- [x] Methode pour splitter l'URI et setter des attributs _basedn, _rdn, _database,...)
+- Classmethod (sur les liste de ressource)
+ - [ ] Model.search(filter, sorted=None(field or dict of fields {'field': reverse(default False)}), count/limit=0, offset=0) : return list of matching record
+ - [x] Model.delete(filter)
+- Instance method (sur une ressource)
+ - [x] instance.update(fieldsname, filter)
+ - [x] instance.write()
+ - [ ] instance.unlink()
+
+## Implementer les http method
+
+-  [ ] _getHTTP => search() => creation d'une liste d'instance de ressource
+-  [x] _putHTTP => write() => creation d'un instance de la ressource
+-  [x] _postHTTP => write() => creation d'un instance de la ressource
+-  [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
+-  [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
+- Traiter binary file (Ajouter metadata dans header du file qd)
+-  [ ] getBinary classmethod
+
+## Traiter relation interbackend (inherits, many2many (asso entre backend different stocker dans main db), many2one)=>
+
+- [ ] https://stormpath.com/blog/linking-and-resource-expansion-rest-api-tips/
+- [ ] 1-1 one2one/inherits (exemple pour user : une partie en DB, un parti en LDAP, Acces transparent au attributes)
+- [ ] n-1 many2one (Ca ajoute un attribut qui contient la ressource)
+- [ ] n-n many2many (Ca ajoute un attribut qui contient une liste de ressource) assoss interbackend stocker dans db principal
+- [ ] Quand relation pas au sein de la meme DB ou quand backend pas DB, assoss stocké dans la DB principale de l'application.
+- [ ] Traiter domain pour relation (ie: one2many pour route '/user/paris60/' [('age', '>', '60'), ('adress.city', 'like', 'Paris')])
+
+## Permission
+
+- [ ] RO & RW
+- [ ] par fields
+- [ ] par ressource (attention à respecter les droits sur les ressources liées many2many, many2one, one2one)
+
+## Authentification
+
+- Authent : https://stormpath.com/blog/easy-single-sign-on-idsite/
+
+## Autres
+
+- Rendre plugable format d'echange HTTP (json, bjson, csv,...) => voir comment on gere des rapport (PDF,)
+- Servent Send event (action de Workflow??)
+- Workflow
+- Offline, sync Online
+- Doc auto API rest (d'apres commentaire et codes routes???)
+- UI XML to generate HTML, iOS, Android... donc code generer a partir des fichiers du backend ou separer complétement backend et frontend???.
