@@ -3,14 +3,14 @@
 ## Next
 
 - GET/search()/get()
-- creer model ORM pour save conf DB par tenant en .py (pas .yaml)
+- créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
 
 
 ## Création dynamique du model à partir du yaml
 
-- [x] Héritage classic : meme attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
+- [x] Héritage classic : même attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
 - [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
 - [x] model logic (.py associé au .yalm avec utilisation API)
 
@@ -35,9 +35,10 @@
 - Traiter binary file (Ajouter metadata dans header du file qd)
 -  [ ] getBinary classmethod
 
-## Traiter relation interbackend (inherits, many2many (asso entre backend different stocker dans main db), many2one)=>
+## Traiter relation interbackend
 
-- [ ] https://stormpath.com/blog/linking-and-resource-expansion-rest-api-tips/
+- Doc utile : https://stormpath.com/blog/linking-and-resource-expansion-rest-api-tips/
+
 - [ ] 1-1 one2one/inherits (exemple pour user : une partie en DB, un parti en LDAP, Acces transparent au attributes)
 - [ ] n-1 many2one (Ca ajoute un attribut qui contient la ressource)
 - [ ] n-n many2many (Ca ajoute un attribut qui contient une liste de ressource) assoss interbackend stocker dans db principal
@@ -52,7 +53,7 @@
 
 ## Authentification
 
-- Authent : https://stormpath.com/blog/easy-single-sign-on-idsite/
+- Web service : https://stormpath.com/blog/easy-single-sign-on-idsite/
 
 ## Autres
 
