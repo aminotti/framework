@@ -67,7 +67,20 @@ class ORM(Mapper, Sql):
         # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
         # add columns or modify columns
         # cls._exeSQL(cls._dropTableSQL())
-        cls._exeSQL(cls._createTableSQL())
+        # cls._exeSQL(cls._createTableSQL())
+        pass
+
+    @classmethod
+    def search(cls, domain, fields=None, count=None, offset=None, sort=None):
+        req, data = cls._selectSQL(domain, fields, count, offset, sort)
+        result = cls._exeSQL(req, data)
+
+        ressources = list()
+        for row in result.fetchall():
+            cls._revertColName(row)
+            ressources.append(cls(row))
+
+        return ressources
 
     def update(self, data2save, domain):
         req, data = self._updateSQL(data2save, domain)
@@ -85,21 +98,7 @@ class ORM(Mapper, Sql):
         cls._exeSQL(req, data)
 
     @classmethod
-    def _selecSQL(cls, request, data=tuple()):
-        """ return selected data """
-        c = cls._query(request, data)
-        return c.fetchall()
-
-    @classmethod
     def _exeSQL(cls, request, data=tuple()):
-        """ Execute update and delete request
-        return number of row affected
-        """
-        c = cls._query(request, data)
-        return c.rowcount
-
-    @classmethod
-    def _query(cls, request, data=tuple()):
         conn = Pool.getConnection(cls._connection_name)
 
         try:

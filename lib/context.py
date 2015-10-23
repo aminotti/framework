@@ -116,7 +116,7 @@ class Context(object):
                     current_app.add_url_rule(rule, 'default_routes_{}'.format(name), default_routes, methods=['GET', 'PUT', 'PATCH', 'DELETE'])
                     rule = '/{}/'.format(name.lower())
                     debug("Adding route : '{}'".format(rule))
-                    current_app.add_url_rule(rule, 'default_post_routes_{}'.format(name), default_post_routes, methods=['POST'])
+                    current_app.add_url_rule(rule, 'default_post_routes_{}'.format(name), default_post_routes, methods=['GET', 'POST'])
 
                 cls.add(tenant, name, obj)
 

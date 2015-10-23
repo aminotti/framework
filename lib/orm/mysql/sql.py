@@ -22,7 +22,10 @@
 ##############################################################################
 
 import datetime
+
 from .sqlfilter import SQLFilter
+from lib.exceptions import *
+from lib.orm.fields import TimeField
 
 
 class Sql(object):
@@ -61,7 +64,35 @@ class Sql(object):
             raise Core400Exception("Condition needed to process delete")
 
     @classmethod
+    def _selectSQL(cls, domain, fields=None, count=None, offset=None, sort=None):
+        if fields and type(fields) is list:
+            fields = ", ".join(set(cls._overrideColName(fields + cls._identifiers)))  # Always return identifiers
+        else:
+            fields = '*'
+
+        if domain:
+            sqlFilter = SQLFilter(domain)
+            condition = sqlFilter.condition
+            data = sqlFilter.data
+        else:
+            condition = "1"
+            data = tuple()
+
+        sql = "SELECT {} FROM {}.{} ".format(fields, cls._dbname, cls.__name__.lower())
+        sql += "WHERE "
+        sql += condition
+        if sort:
+            sql += " ORDER BY {}".format(", ".join(cls._overrideColName(sort)))
+        if count and offset:
+            sql += " LIMIT {}, {}".format(offset, count)
+        elif count:
+            sql += " LIMIT {}".format(count)
+        sql += ";"
+        return sql, data
+
+    @classmethod
     def _createTableSQL(cls):
+        # TODO remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())
         sql = "CREATE TABLE IF NOT EXISTS {}.{} (\n".format(cls._dbname, cls.__name__.lower())
         sql += cls.__getColumnsSQL()
         sql += ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
@@ -71,15 +102,51 @@ class Sql(object):
     def _dropTableSQL(cls):
         return "DROP TABLE IF EXISTS {}.{};".format(cls._dbname, cls.__name__.lower())
 
-    # Key : Convert key name to SQLcol
-    # Value : Convert python type to SQL type
+    @classmethod
+    def _overrideColName(cls, fields):
+        f = list()
+
+        for colname in fields:
+            col = getattr(cls, "_{}_field".format(colname), None)
+            if not col:
+                raise Core404Exception("Attribute '" + colname + "' doesn't exist.")
+            if not col.compute:
+                f.append(col.fieldName or colname.lower())
+
+        return f
+
+    @classmethod
+    def _revertColName(cls, fields):
+        """
+        Remplace le nom sql de la colonne par le nom python de la colonne.
+
+        TODO Remplace l'attribut contenant les métadonnées d'un binary par une URL.
+        """
+        for colname in cls._columns:
+            col = getattr(cls, "_{}_field".format(colname), None)
+
+            # Change field name
+            name = col.fieldName
+            if name in fields:
+                fields[colname] = fields.pop(name)
+
+            # Adapt Value
+            if isinstance(col, TimeField) and colname in fields:
+                fields[colname] = (datetime.datetime.min + fields[colname]).time()
+
+            # TODO Change metadata par URL quand type BinaryCol
+
     def _prepareData(self, data2save=None):
+        """
+        Field : Convert field name to SQL column name
+        Value : Convert python type to SQL type
+        """
         k = list()
         v = list()
 
         for colname in self._columns:
             col = getattr(self, "_{}_field".format(colname), None)
-            if col is None:
+            if not col:
                 raise Core404Exception("Attribute '" + colname + "' doesn't exist.")
             val = getattr(self, colname)
 
@@ -192,10 +259,10 @@ class Sql(object):
                 default = '1'
             else:
                 default = '0'
-        elif col.default is not None:
+        elif col.default:
             default = str(col.default)
 
-        if default is not None:
+        if default:
             default = " DEFAULT '{}'".format(default.replace("'", "''"))
         else:
             default = ""
@@ -223,7 +290,7 @@ class Sql(object):
         else:
             t = "VARCHAR"
         sqltype = col.backendType or t
-        if col.length is not None:
+        if col.length:
             length = "({})".format(col.length)
         else:
             length = ""
@@ -292,12 +359,12 @@ class Sql(object):
     @classmethod
     def __getIntFieldSQL(cls, name, col):
         default, null, unique = cls.__getColStruct(col)
-        if col.size is None or col.size < 12:
+        if col.size or col.size < 12:
             t = "INT"
         else:
             t = "BIGINT"
         sqltype = col.backendType or t
-        if col.size is not None:
+        if col.size:
             size = "({})".format(col.size)
         else:
             size = ""

@@ -13,6 +13,10 @@ def hello():
 
 @ctl.route('/<int:code>/')
 def name(code):
+    book = models.Booking.get(code)
+    if book:
+        print "###", book.name
+        book.unlink()
     return "Hello World code {}!".format(code)
 
 

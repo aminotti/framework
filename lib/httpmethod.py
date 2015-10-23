@@ -31,10 +31,6 @@ from lib import contenttype
 
 
 class HTTPMethods(object):
-    # TODO gerer different input et ouput de facon modulaire (csv, json, bjson...)
-    # TODO Gerer les accept et content type header
-    __headers = {"Content-type": "application/json;charset=UTF-8"}
-
     @classmethod
     def dispatchMethods(cls, domain=None, relationship=None):
         if domain:
@@ -52,8 +48,9 @@ class HTTPMethods(object):
             return cls._postHTTP()
 
     @classmethod
-    def _getHTTP(cls, condition=None, relationship=None):
-        return "GET"
+    def _getHTTP(cls, domain=None, relationship=None):
+        # TODO add expend = True pour toucher les relation au lieux de leur id
+        # TODO ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes
         """
         # Manage relashionship
         relationshipcls = None
@@ -63,45 +60,62 @@ class HTTPMethods(object):
                 break
         if relationshipcls is None and relationship is not None:
             raise Core500Exception("Bad relationship '{}'.".format(relationship))
+        """
 
         # Manage request arguement "fields"
         fields = request.args.get('fields', None)
-        if fields is not None:
+        if fields:
             fields = fields.split(",")
             if type(fields) is not list:
                 raise Core400Exception("'{}' : bad type for fields.".format(fields))
             for name in fields:
                 # Fields can be col of cls or name of a relationcls or if a relationship define, col of a relationship
-                # if name not in cls._columns and name not in (d.name for d in one2many[cls.__name__]) and  and name not in relationshipcls._columns:
-                if not (name in cls._columns or name in (d.name for d in one2many[cls.__name__]) or (relationshipcls and name in relationshipcls._columns)):
+                # if not (name in cls._columns or name in (d.name for d in one2many[cls.__name__]) or (relationshipcls and name in relationshipcls._columns)):
+                if not (name in cls._columns):
                     raise Core400Exception("Bad value '{}' in fields list.".format(name))
 
-        # Manage request arguement "count"
+        # Check request's arguement "count"
         count = request.args.get('count', None)
-        if count is not None:
+        if count:
             try:
                 int(count)
             except ValueError:
                 raise Core400Exception("'{}' : bad type for count.".format(count))
 
-        # Manage request arguement "offset"
+        # Check request's arguement "offset"
         offset = request.args.get('offset', None)
-        if offset is not None:
+        if offset:
             try:
                 int(offset)
             except ValueError:
                 raise Core400Exception("'{}' : bad type for offset.".format(offset))
 
-        data = cls.get(condition, relationshipcls, fields, count, offset)
-        print "# Instance", data[0].__dict__
-        print "$$$$$", vars(data[0])
-        print "# Class", data[0].__class__.__dict__
-        if len(data) == 0:
+        # Check request's arguement "sort"
+        sort = request.args.get('sort', None)
+        if sort:
+            sort = sort.split(",")
+            for f in sort:
+                if f not in cls._columns:
+                    raise Core400Exception("Can't sort on {}. Field doesn't exist.".format(f))
+
+        # TODO Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'
+        # langs = cls._orderHeaderByq(request.headers['Accept-Language'])  # Return list of lang order by preference, Firt item is prefered one.
+
+        ressources = cls.search(domain, fields, count, offset, sort)
+        if len(ressources) == 0:
             raise Core404Exception("Empty set")
-        r = Response(obj2json(data), headers=cls.__headers)  # TODO change convert method according to client 'Accept' header
+
+        data = list()
+        if fields:
+            fields += cls._identifiers
+        for r in ressources:
+            # create dict from all ressource's fields or selected field in request arg if provided
+            data.append(dict([(f, r._fields[f]) for f in (fields or cls._columns)]))
+
+        ctype, Converter = cls._getAcceptedContentType()
+        r = Response(Converter.fromDict(data), headers={"Content-type": "{};charset=UTF-8".format(ctype)})
         r.status_code = 200
         return r
-        """
 
     # Ressource creation with auto id
     @classmethod
@@ -154,6 +168,37 @@ class HTTPMethods(object):
         del r.headers['content-type']
         r.status_code = 204
         return r
+
+    @classmethod
+    def _getAcceptedContentType(cls):
+        accepts = cls._orderHeaderByq(request.headers['Accept'])
+        for accept in accepts:
+            if accept in contenttype.Converter.keys():
+                return accept, contenttype.Converter[accept]
+                break
+
+        # Default content type is JSON
+        return "application/json", contenttype.Converter["application/json"]
+
+    @classmethod
+    def _orderHeaderByq(cls, header):
+        """ Order HTTP header by preference set with q=number
+
+        ;return list: ordered list with firsts items as prefered
+        """
+        ordered = dict()
+
+        for part in header.split(","):
+            subpart = part.split(";")
+            if len(subpart) > 1 and "q=" in subpart[1]:
+                try:
+                    ordered[subpart[0].strip()] = float(subpart[1].strip()[2:])
+                except ValueError:
+                    raise Core400Exception("'{}' : q must be a number.".format(subpart[1].strip()))
+            else:
+                ordered[subpart[0].strip()] = 1.0
+
+        return sorted(ordered, key=ordered.__getitem__, reverse=True)
 
     @classmethod
     def getDataFromContentType(cls):

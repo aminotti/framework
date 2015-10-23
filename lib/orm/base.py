@@ -256,10 +256,33 @@ class Mapper(HTTPMethods):
         pass
 
     @classmethod
+    def get(cls, *identifiers):  # TODO add expend = True pour toucher les relation au lieux de leur id
+        """
+        Get a ressource by identifiers.
+
+        ;return : A ressource maching the identifiers or None if not found.
+        """
+        domain = list()
+        i = 0
+
+        if len(identifiers) != len(cls._identifiers):
+            raise Core500Exception("'{}' : Bad number of identifiers".format(str(identifiers)))
+
+        for identifier in cls._identifiers:
+            col = getattr(cls, "_{}_field".format(identifier), None)
+            col.check(identifiers[i])
+            domain.append((identifier, '=', identifiers[i]))
+            i += 1
+
+        ressources = cls.search(domain)
+        if ressources:
+            return ressources[0]
+        else:
+            return None
+
+    @classmethod
     def search(cls, domain, fields=None, count=None, offset=None, sort=None):
         """ Searches for records based on the search domain
-
-Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(default False)}), count=, offset=0) : return list of matching record
 
         :param domain: Search filter.
         :param list fields: List of fields to return.
@@ -302,5 +325,8 @@ Model.search(filter, sort_by=None(field or dict of fields {'field': reverse(defa
 
     def unlink(self):
         """ Delete the ressource. """
-        error("unlink() method not implemented for {}".format(cls.whoami()))
-        raise NotImplementedError
+        domain = list()
+        for identifier in self._identifiers:
+            domain.append((identifier, '=', getattr(self, identifier)))
+
+        self.delete(domain)

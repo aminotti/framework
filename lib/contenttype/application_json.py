@@ -17,11 +17,11 @@ class Converter(object):
         return ret
 
     @classmethod
-    def fromDict(cls, dico):
+    def fromDict(cls, data):
         try:
-            if type(dico) is list and len(data) == 1:
-                dico = dico[0]
-            ret = json.dumps(dico, sort_keys=True, cls=PythonJsonEncoder, ensure_ascii=False)
+            if type(data) is list and len(data) == 1:
+                data = data[0]
+            ret = json.dumps(data, sort_keys=True, cls=PythonJsonEncoder, ensure_ascii=False)
         except Exception as e:
             raise Core400Exception("<MalformedJSON> " + str(e))
         return ret

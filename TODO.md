@@ -2,10 +2,11 @@
 
 ## Next
 
-- GET/search()/get()
+- Reflechir au type binaire
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
+- Gerer des routes dans un module python appart (Create DB, install module ...)
 
 
 ## Création dynamique du model à partir du yaml
@@ -18,16 +19,16 @@
 
 - [x] Methode pour splitter l'URI et setter des attributs _basedn, _rdn, _database,...)
 - Classmethod (sur les liste de ressource)
- - [ ] Model.search(filter, sorted=None(field or dict of fields {'field': reverse(default False)}), count/limit=0, offset=0) : return list of matching record
+ - [x] Model.search(filter, sorted=None(field or dict of fields {'field': reverse(default False)}), count/limit=0, offset=0) : return list of matching record
  - [x] Model.delete(filter)
 - Instance method (sur une ressource)
  - [x] instance.update(fieldsname, filter)
  - [x] instance.write()
- - [ ] instance.unlink()
+ - [x] instance.unlink()
 
 ## Implementer les http method
 
--  [ ] _getHTTP => search() => creation d'une liste d'instance de ressource
+-  [x] _getHTTP => search() => creation d'une liste d'instance de ressource
 -  [x] _putHTTP => write() => creation d'un instance de la ressource
 -  [x] _postHTTP => write() => creation d'un instance de la ressource
 -  [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
@@ -46,6 +47,8 @@
 - [ ] Traiter domain pour relation (ie: one2many pour route '/user/paris60/' [('age', '>', '60'), ('adress.city', 'like', 'Paris')])
 
 ## Permission
+
+Tester webservice stormpath pour voir comment sont gérer les permission avec un system d'authent détaché
 
 - [ ] RO & RW
 - [ ] par fields
