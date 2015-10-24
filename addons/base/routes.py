@@ -6,18 +6,13 @@ from app.context import models
 ctl = Controller()
 
 
-@ctl.route('/')
-def hello():
-    return "Hello World {}!".format(current_app.tenant)
-
-
 @ctl.route('/<int:code>/')
 def name(code):
     book = models.Booking.get(code)
     if book:
         print "###", book.name
         book.unlink()
-    return "Hello World code {}!".format(code)
+    return "Hello World code {}, app {}!".format(code, current_app.tenant)
 
 
 @ctl.route('/test/')

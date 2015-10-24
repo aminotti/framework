@@ -15,8 +15,9 @@
 ./app/module.py:227:        # TODO Remove views
 ./app/module.py:228:        # TODO Remove datas
 ./app/module.py:229:        # TODO Remove workflows
+./app/module.py:235:        # TODO reimporter defaults routes
 ./app/api.py:45:            # Run method if one of the TODO ameliorer commentaire
-./app/multitenancy.py:110:            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
+./app/multitenancy.py:113:            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
 ./lib/httpmethod.py:52:        # TODO add expend = True pour toucher les relation au lieux de leur id
 ./lib/httpmethod.py:53:        # TODO ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes
 ./lib/httpmethod.py:101:        # TODO Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'

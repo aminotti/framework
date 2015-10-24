@@ -3,11 +3,20 @@
 ## Next
 
 - Reflechir au type binaire
+ * POST/PUT/PATCH : Envoyer en mutlipart avec le binaire dans le corp
+ * GET : l'attribut vaut l'URL /<ressource>/id/attribute.ext
+ * l'attribut binaire n'est chargé que pour save en DB
+ * pour stockage db ajouter en tete avec extension et mine_type
+- Reflechir à la gestion des hooks
+ * Pouvoir programmer une action à chaque fois qu'un requete HTTP est executés
+ * Actions doivent etre plugable
+ * Action Webhook : pouvoir configurer des URLs à allez tappez a chaque fois (doit etre plugable)
+ * Action ESB => envoi des message sur le bus d'entreprise???
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
+- Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
+- Reflechir au cache des donnée persistance (redis, memcache)
 - Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
-- Gerer des routes dans un module python appart (Create DB, install module ...)
-
 
 ## Création dynamique du model à partir du yaml
 
@@ -62,7 +71,11 @@ Tester webservice stormpath pour voir comment sont gérer les permission avec un
 
 - Rendre plugable format d'echange HTTP (json, bjson, csv,...) => voir comment on gere des rapport (PDF,)
 - Servent Send event (action de Workflow??)
-- Workflow
+- Workflow odoo (https://www.odoo.com/documentation/8.0/reference/workflows.html) :
+  * 1 Workflow est assosicé a un model
+  * Composer de d'activité relié par des transition
+  * 4 type d'activité : dummy, function, stop all, subworkflow
+  * 3 critère pour les transition : condition, signal, trigger
 - Offline, sync Online
 - Doc auto API rest (d'apres commentaire et codes routes???)
 - UI XML to generate HTML, iOS, Android... donc code generer a partir des fichiers du backend ou separer complétement backend et frontend???.

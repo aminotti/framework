@@ -232,4 +232,8 @@ class SmartManagement(object):
         models.reset(app.tenant)
         # Reset to default Flask route
         app.url_map = Map([Rule('/static/<filename>', methods=['HEAD', 'OPTIONS', 'GET'], endpoint='static')])
+        # TODO reimporter defaults routes
+        # from .defaults_routes import ctl as ctl_defaults_routes
+        # ctl_defaults_routes.buildRoutes(app)
+
         cls._importAll(app)

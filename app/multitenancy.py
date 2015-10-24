@@ -32,6 +32,9 @@ from .config import conf
 from lib.logger import debug, error, info
 from .module import SmartManagement
 
+# Defaults routes must be last import
+from .defaults_routes import ctl as ctl_defaults_routes
+
 
 class WSGIApp(Flask):
     def __init__(self, import_name):
@@ -116,11 +119,7 @@ class AppDispatcher(object):
 
         debug("Building app for tenant '{}'.".format(app.tenant))
 
-        @app.route('/install/<module>')
-        def install(module):
-            SmartManagement.install(module, app)
-            return "Install ok!!"
-
+        ctl_defaults_routes.buildRoutes(app)
         SmartManagement.loadModules(app)
 
         return app
