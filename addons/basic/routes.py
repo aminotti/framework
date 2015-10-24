@@ -15,6 +15,11 @@ def name(code):
     return "Hello World code {}, app {}!".format(code, current_app.tenant)
 
 
+@ctl.route('/test2/')
+def test2():
+    return str(models.Hooks._hookable)
+
+
 @ctl.route('/test/')
 def test():
     print models.Country.whoami()

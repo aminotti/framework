@@ -104,7 +104,7 @@ class Field(object):
 
         :param str data: The field's value.
         """
-        if data and self.regex is not None:
+        if data and self.regex:
             if self.regex.match(data) is None:
                 raise Core400Exception("Invalid value : '{}'".format(data))
 

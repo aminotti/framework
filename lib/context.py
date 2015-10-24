@@ -150,6 +150,6 @@ class Context(object):
     def get(self, name, tenant=None):
         """ Beside attribute access, model can be accessed by name. """
         if tenant:
-            return self._models[tenant][name]
+            return self._models[tenant].get(name)
         else:
-            return self._models[current_app.tenant][name]
+            return self._models[current_app.tenant].get(name)

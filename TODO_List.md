@@ -18,6 +18,7 @@
 ./app/module.py:235:        # TODO reimporter defaults routes
 ./app/api.py:45:            # Run method if one of the TODO ameliorer commentaire
 ./app/multitenancy.py:113:            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
+./addons/base/models/country.py:37:    # TODO check value exist else return Bad request
 ./lib/httpmethod.py:52:        # TODO add expend = True pour toucher les relation au lieux de leur id
 ./lib/httpmethod.py:53:        # TODO ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes
 ./lib/httpmethod.py:101:        # TODO Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'
@@ -38,12 +39,12 @@ Fichier binaire ./lib/orm/mysql/sql.pyc correspondant
 ./lib/orm/mysql/sql.py:137:            # TODO Change metadata par URL quand type BinaryCol
 ./lib/orm/mysql/sql.py:206:        # TODO gerer creation foreign key
 ./lib/orm/mysql/sql.py:344:        # TODO gerer binary field pour create columns
-./lib/orm/base.py:62:                # TODO gerer relations
-./lib/orm/base.py:75:    # TODO Add internal fields (on backend herited class??)
-./lib/orm/base.py:130:            # TODO Check ACL RW allowed
-./lib/orm/base.py:133:            # TODO trigger workflow event onchange
-./lib/orm/base.py:153:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:160:            # TODO Check ACL RO or RW allowed
-./lib/orm/base.py:170:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:238:        # TODO implement en retirant les champs mis a copy=False
-./lib/orm/base.py:259:    def get(cls, *identifiers):  # TODO add expend = True pour toucher les relation au lieux de leur id
+./lib/orm/base.py:63:                # TODO gerer relations
+./lib/orm/base.py:82:    # TODO Add internal fields (on backend herited class??)
+./lib/orm/base.py:137:            # TODO Check ACL RW allowed
+./lib/orm/base.py:143:            # TODO trigger workflow event onchange
+./lib/orm/base.py:163:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:170:            # TODO Check ACL RO or RW allowed
+./lib/orm/base.py:180:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:248:        # TODO implement en retirant les champs mis a copy=False
+./lib/orm/base.py:269:    def get(cls, *identifiers):  # TODO add expend = True pour toucher les relation au lieux de leur id

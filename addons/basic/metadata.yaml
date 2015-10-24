@@ -1,0 +1,11 @@
+name: Basic module
+version: 1.0
+description: This is description of basic module
+author: Author Name
+email: author@name.tld
+website: http://www.monplug.tld
+git: http://git.monplug.tld/author/basic.git
+license: AGPL-3
+icon: /path/to/icon.png
+auto-install: True
+auto-upgrade: True

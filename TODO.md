@@ -7,14 +7,10 @@
  * GET : l'attribut vaut l'URL /<ressource>/id/attribute.ext
  * l'attribut binaire n'est chargé que pour save en DB
  * pour stockage db ajouter en tete avec extension et mine_type
-- Reflechir à la gestion des hooks
- * Pouvoir programmer une action à chaque fois qu'un requete HTTP est executés
- * Actions doivent etre plugable
- * Action Webhook : pouvoir configurer des URLs à allez tappez a chaque fois (doit etre plugable)
- * Action ESB => envoi des message sur le bus d'entreprise???
+
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
-- Reflechir au cache des donnée persistance (redis, memcache)
+- Reflechir au cache des donnée persistance (redis, memcache) : ajouter un attribut au ressource pour dire si on veut cacher ou pas (fait: _cacheable)
 - Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
 
@@ -23,6 +19,7 @@
 - [x] Héritage classic : même attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
 - [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
 - [x] model logic (.py associé au .yalm avec utilisation API)
+- [ ] Faire une liste de fonction standar pour les constraint (exemple lowercase, uppercase, capitalize, ...) dans un module de .app
 
 ## Implementer les fonctions de base de ORM
 
@@ -55,9 +52,24 @@
 - [ ] Quand relation pas au sein de la meme DB ou quand backend pas DB, assoss stocké dans la DB principale de l'application.
 - [ ] Traiter domain pour relation (ie: one2many pour route '/user/paris60/' [('age', '>', '60'), ('adress.city', 'like', 'Paris')])
 
+## Gestion des hooks
+
+- [ ] Pourvoir executer des hooks sur les actions write(), update(), delete(), unlink() (appel method du manager)
+- [ ] Creation d'une class hook manager qui va lire la DB, Charger le bon module de hook en lui envoiyant les settings deserialisé (dict)
+- [ ] Hook plugable : Webook, message pour bus d'entreprise (ESB)
+- [ ] Chaque hook ajouter est enregistré en DB  avec les colonnes :
+  * ressource (Nom de la classe en miniscule)
+  * action (create, update, delete)
+  * type (nom du module à utiliser : web, message)
+  * payload_type (json, xml, ...)
+  * settings : parametre propre au hook (dict serialisé)
+- [X] Ajouter un attribut au ressource pour definir si la ressource est hookable ou pas
+- Cacher les hooks dans un redis ou memchache
+
 ## Permission
 
-Tester webservice stormpath pour voir comment sont gérer les permission avec un system d'authent détaché
+* Auditer les requetes de Taiga pour l'authent vu que c'est full API
+* Tester webservice stormpath pour voir comment sont gérer les permission avec un system d'authent détaché
 
 - [ ] RO & RW
 - [ ] par fields

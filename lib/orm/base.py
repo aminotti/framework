@@ -22,9 +22,10 @@
 ##############################################################################
 
 import types
+import json
 from flask import current_app
 from ..exceptions import *
-from .fields import Field, Index, IntField
+from .fields import Field, Index, IntField, StringField
 from ..logger import debug, error
 from ..httpmethod import HTTPMethods
 
@@ -61,6 +62,12 @@ class MapperMetaCls(type):
 
                 # TODO gerer relations
                 # one2many[name] = list()
+
+                if '_cacheable' not in d:
+                    d['_cacheable'] = False
+
+                if '_hookable' not in d:
+                    d['_hookable'] = True
 
                 d.update(bases[0].setupConnection(d['_uri'], current_app.tenant))
 
@@ -128,6 +135,9 @@ class Mapper(HTTPMethods):
         if name in self._columns:
             field = getattr(self, '_' + name + '_field')
             # TODO Check ACL RW allowed
+            # Serialize dict to string
+            if isinstance(field, StringField) and type(value) is dict:
+                value = json.dumps(value, ensure_ascii=False)
             # Syntax/type checks
             field.check(value)
             # TODO trigger workflow event onchange

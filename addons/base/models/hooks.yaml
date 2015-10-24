@@ -1,0 +1,28 @@
+name: Hooks
+uri: default
+hookable: false
+fields:
+    ressource:
+        type: string
+        length: 25
+        constraints: ressourceConstraints
+    action:
+        type: enum
+        values:
+            - create
+            - update
+            - delete
+    type:
+        help: Hook type
+        type: string
+        length: 25
+        default: web
+    settings:
+        help: Hook settings
+        type: string
+        length: 500
+
+indexes:
+    idxresact:
+        - ressource
+        - action

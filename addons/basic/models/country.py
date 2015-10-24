@@ -33,6 +33,6 @@ def villeCompute(self):
 
 
 # Constraint
-def lowercase(self, value):
-    # TODO check value exist else return Bad request
+def nameConstraints(self, value):
+    print "Call on writting data."
     return value.capitalize()
