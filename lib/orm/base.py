@@ -28,6 +28,7 @@ from ..exceptions import *
 from .fields import Field, Index, IntField, StringField
 from ..logger import debug, error
 from ..httpmethod import HTTPMethods
+from app.hookmanager import HookManager
 
 
 class MapperMetaCls(type):
@@ -312,26 +313,39 @@ class Mapper(HTTPMethods):
         :param list data2save: name of ressource's fields to save.
         :param domain: search filter.
         """
-        error("update() method not implemented for {}".format(cls.whoami()))
-        raise NotImplementedError
+        if self._hookable:
+            identifiers = self._domain2Id(domain)
+            if identifiers:
+                HookManager.exeUpdate(self, data2save, identifiers)
 
     @classmethod
     def delete(cls, domain):
         """ Delete several records base on the search domain. """
-        error("delete() method not implemented for {}".format(cls.whoami()))
-        raise NotImplementedError
+        if cls._hookable:
+            identifiers = cls._domain2Id(domain)
+            cls.ormDelete(domain)
+            if identifiers:
+                HookManager.exeDelete(cls, identifiers)
+        else:
+            cls.ormDelete(domain)
 
-    def write(self):
+    def create(self):
         """
-        Create or update the ressource.
+        Create the ressource.
 
         @return: None or id of created ressource
         """
-        # Check that require's fields are set
-        for fieldname in self._columns:
-            field = getattr(self, '_' + fieldname + '_field')
-            if field.require and not self._fields[fieldname]:
-                raise Core400Exception("Attribut '{}' is required".format(fieldname))
+        if self._hookable:
+            HookManager.exeCreate(self)
+        return getattr(self, self._identifiers[0])
+
+    def write(self):
+        """ Perform write on the ressource. """
+        domain = list()
+        for identifier in self._identifiers:
+            domain.append((identifier, '=', getattr(self, identifier)))
+
+        self.update(self._columns, domain)
 
     def unlink(self):
         """ Delete the ressource. """
@@ -340,3 +354,19 @@ class Mapper(HTTPMethods):
             domain.append((identifier, '=', getattr(self, identifier)))
 
         self.delete(domain)
+
+    def _checkRequires(self):
+        # Check that require's fields are set
+        for fieldname in self._columns:
+            field = getattr(self, '_' + fieldname + '_field')
+            if field.require and not self._fields[fieldname]:
+                raise Core400Exception("Attribut '{}' is required".format(fieldname))
+
+    @classmethod
+    def _domain2Id(cls, domain):
+        """ Return list of dict of identifiers from domain """
+        identifiers = list()
+        resu = cls.search(domain, fields=cls._identifiers)
+        for res in resu:
+            identifiers.append({key: res._fields[key] for key in cls._identifiers})
+        return identifiers

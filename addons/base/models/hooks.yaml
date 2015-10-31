@@ -5,7 +5,7 @@ fields:
     ressource:
         type: string
         length: 25
-        constraints: ressourceConstraints
+        constraints: ressourceConstraint
     action:
         type: enum
         values:
@@ -16,7 +16,18 @@ fields:
         help: Hook type
         type: string
         length: 25
-        default: web
+        default: Web
+        constraints: typeConstraint
+    exec_date:
+        type: datetime
+        require: false
+    exec_message:
+        type: string
+        length: 250
+        require: false
+    active:
+        type : bool
+        default: True
     settings:
         help: Hook settings
         type: string

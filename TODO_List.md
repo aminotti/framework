@@ -22,8 +22,9 @@
 ./lib/httpmethod.py:52:        # TODO add expend = True pour toucher les relation au lieux de leur id
 ./lib/httpmethod.py:53:        # TODO ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes
 ./lib/httpmethod.py:101:        # TODO Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'
-./lib/httpmethod.py:218:            pass  # TODO implementaire pour binary
-./lib/httpmethod.py:235:            # TODO Handle multipart/mixed
+./lib/httpmethod.py:189:        # TODO RFC2616 sect 14.1, si wrong 'Accept' header : 406 (Not Acceptable). Si * ou pas de 'Accept' alors default json
+./lib/httpmethod.py:227:            pass  # TODO implementaire pour binary
+./lib/httpmethod.py:244:            # TODO Handle multipart/mixed
 ./lib/context.py:80:        # TODO checker champs requis présent dans yaml et bon type associé
 ./lib/context.py:87:                # TODO #200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)
 Fichier binaire ./lib/orm/pool.pyc correspondant
@@ -36,15 +37,15 @@ Fichier binaire ./lib/orm/mysql/sql.pyc correspondant
 ./lib/orm/mysql/orm.py:67:        # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
 ./lib/orm/mysql/sql.py:95:        # TODO remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())
 ./lib/orm/mysql/sql.py:123:        TODO Remplace l'attribut contenant les métadonnées d'un binary par une URL.
-./lib/orm/mysql/sql.py:137:            # TODO Change metadata par URL quand type BinaryCol
-./lib/orm/mysql/sql.py:206:        # TODO gerer creation foreign key
-./lib/orm/mysql/sql.py:344:        # TODO gerer binary field pour create columns
-./lib/orm/base.py:63:                # TODO gerer relations
-./lib/orm/base.py:82:    # TODO Add internal fields (on backend herited class??)
-./lib/orm/base.py:137:            # TODO Check ACL RW allowed
-./lib/orm/base.py:143:            # TODO trigger workflow event onchange
-./lib/orm/base.py:163:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:170:            # TODO Check ACL RO or RW allowed
-./lib/orm/base.py:180:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
-./lib/orm/base.py:248:        # TODO implement en retirant les champs mis a copy=False
-./lib/orm/base.py:269:    def get(cls, *identifiers):  # TODO add expend = True pour toucher les relation au lieux de leur id
+./lib/orm/mysql/sql.py:139:            # TODO Change metadata par URL quand type BinaryCol
+./lib/orm/mysql/sql.py:208:        # TODO gerer creation foreign key
+./lib/orm/mysql/sql.py:346:        # TODO gerer binary field pour create columns
+./lib/orm/base.py:64:                # TODO gerer relations
+./lib/orm/base.py:83:    # TODO Add internal fields (on backend herited class??)
+./lib/orm/base.py:138:            # TODO Check ACL RW allowed
+./lib/orm/base.py:144:            # TODO trigger workflow event onchange
+./lib/orm/base.py:164:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:171:            # TODO Check ACL RO or RW allowed
+./lib/orm/base.py:181:        # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
+./lib/orm/base.py:249:        # TODO implement en retirant les champs mis a copy=False
+./lib/orm/base.py:270:    def get(cls, *identifiers):  # TODO add expend = True pour toucher les relation au lieux de leur id

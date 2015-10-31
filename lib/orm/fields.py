@@ -203,7 +203,7 @@ class BoolField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not bool:
+        if date and type(data) is not bool:
             raise Core400Exception("Invalid boolean : '{}'".format(data))
 
 
@@ -237,7 +237,7 @@ class CurrencyField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not float and type(data) is not int:
+        if data and type(data) is not float and type(data) is not int:
             raise Core400Exception("Invalid currency : '{}'".format(data))
 
 
@@ -257,7 +257,7 @@ class DateField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not date:
+        if data and type(data) is not date:
             raise Core400Exception("Invalid date : '{}'".format(data))
 
 
@@ -277,7 +277,7 @@ class DatetimeField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not datetime:
+        if data and type(data) is not datetime:
             raise Core400Exception("Invalid datetime : '{}'".format(data))
 
 
@@ -298,7 +298,7 @@ class DecimalField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not float and type(data) is not int:
+        if data and type(data) is not float and type(data) is not int:
             raise Core400Exception("Invalid decimal : '{}'".format(data))
 
 
@@ -397,7 +397,7 @@ class IntField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not int:
+        if data and type(data) is not int:
             raise Core400Exception("Invalid integer : '{}'".format(data))
 
 
@@ -482,7 +482,7 @@ class TimeField(Field):
 
         :param data: The field's value.
         """
-        if type(data) is not time:
+        if data and type(data) is not time:
             raise Core400Exception("Invalid time : '{}'".format(data))
 
 

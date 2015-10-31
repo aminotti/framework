@@ -85,15 +85,22 @@ class ORM(Mapper, Sql):
     def update(self, data2save, domain):
         req, data = self._updateSQL(data2save, domain)
         self._exeSQL(req, data)
+        super(ORM, self).update(data2save, domain)
 
-    def write(self):
-        # Parent method test if require fields are set
-        super(ORM, self).write()
+    def create(self):
+        # Test if require fields are set
+        self._checkRequires()
+
         req, data = self._replaceSQL()
-        self._exeSQL(req, data)
+        c = self._exeSQL(req, data)
+        rid = c.lastrowid
+        if rid:
+            setattr(self, self._identifiers[0], rid)
+
+        return super(ORM, self).create()
 
     @classmethod
-    def delete(cls, domain):
+    def ormDelete(cls, domain):
         req, data = cls._deleteSQL(domain)
         cls._exeSQL(req, data)
 

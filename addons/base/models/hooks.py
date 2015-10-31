@@ -24,24 +24,37 @@
 
 from app.context import models
 from lib.exceptions import *
+import lib.hook
 
 
-def ressourceConstraints(self, value):
+def ressourceConstraint(self, value):
     ressource = value.lower().capitalize()
     if not models.get(ressource):
         raise Core400Exception("Ressource '{}' doesn't exist.".format(ressource))
     return ressource
 
 
-def write(self):
+def typeConstraint(self, value):
+    hook_type = value.lower().capitalize()
+    if hasattr(lib.hook, hook_type):
+        return hook_type
+    else:
+        raise Core400Exception("Wrong hook type '{}'.".format(hook_type))
+
+
+def create(self):
+    self._hookable = False
+
     # Test if ressource is hookable before performing normal process
     if models.get(self.ressource)._hookable:
-        super(self.__class__, self).write()
+        return super(self.__class__, self).create()
     else:
         raise Core400Exception("Ressource '{}' is not hookable.".format(self.ressource))
 
 
 def update(self, data2save, domain):
+    self._hookable = False
+
     # Test if ressource is hookable before performing normal process
     if models.get(self.ressource)._hookable:
         super(self.__class__, self).update(data2save, domain)

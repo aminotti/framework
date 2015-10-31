@@ -25,7 +25,7 @@ import datetime
 
 from .sqlfilter import SQLFilter
 from lib.exceptions import *
-from lib.orm.fields import TimeField
+from lib.orm.fields import TimeField, BoolField
 
 
 class Sql(object):
@@ -133,6 +133,8 @@ class Sql(object):
             # Adapt Value
             if isinstance(col, TimeField) and colname in fields:
                 fields[colname] = (datetime.datetime.min + fields[colname]).time()
+            elif isinstance(col, BoolField) and colname in fields:
+                fields[colname] = fields[colname] is 1
 
             # TODO Change metadata par URL quand type BinaryCol
 

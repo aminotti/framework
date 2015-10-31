@@ -8,6 +8,13 @@
  * l'attribut binaire n'est chargé que pour save en DB
  * pour stockage db ajouter en tete avec extension et mine_type
 
+ * BinaryField est un dico qui cotient, mine-type, extension, data
+ * mimetype et data ajouter en header du binary pour save dans db
+ * les convertion vert ouput format(csv, xml,..) qui transformt le binary field en URL
+ * Definir traitement qd on HTTP GET une URL d'un binary
+ * Doit-on faire un traitement pour faire directemnet un PUT sur un binary?
+
+- Faire une ressource binary/file/fsstorage dans module base pour permettre de faire facilement one2one pour save du FS au lieux DB
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
 - Reflechir au cache des donnée persistance (redis, memcache) : ajouter un attribut au ressource pour dire si on veut cacher ou pas (fait: _cacheable)
@@ -24,19 +31,19 @@
 ## Implementer les fonctions de base de ORM
 
 - [x] Methode pour splitter l'URI et setter des attributs _basedn, _rdn, _database,...)
-- Classmethod (sur les liste de ressource)
- - [x] Model.search(filter, sorted=None(field or dict of fields {'field': reverse(default False)}), count/limit=0, offset=0) : return list of matching record
- - [x] Model.delete(filter)
-- Instance method (sur une ressource)
- - [x] instance.update(fieldsname, filter)
- - [x] instance.write()
- - [x] instance.unlink()
+- [x] Model.search(filter, sorted=None(field or dict of fields {'field': reverse(default False)}), count/limit=0, offset=0) : return list of matching record
+- [x] Model.get(*identifiers) : renvoi une ressource
+- [x] Model.delete(filter) suppression sur une liste de ressource
+- [x] Model.update(fieldsname, filter) maj sur une liste de ressource
+- [x] instance.create() creation d'une une ressoure
+- [x] instance.write() maj d'une une ressoure
+- [x] instance.unlink() suppression d'un ressource
 
 ## Implementer les http method
 
 -  [x] _getHTTP => search() => creation d'une liste d'instance de ressource
--  [x] _putHTTP => write() => creation d'un instance de la ressource
--  [x] _postHTTP => write() => creation d'un instance de la ressource
+-  [x] _putHTTP => write() => creation d'un instance de la ressource (id fourni)
+-  [x] _postHTTP => write() => creation d'un instance de la ressource (id auto)
 -  [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
 -  [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
 - Traiter binary file (Ajouter metadata dans header du file qd)
@@ -51,20 +58,24 @@
 - [ ] n-n many2many (Ca ajoute un attribut qui contient une liste de ressource) assoss interbackend stocker dans db principal
 - [ ] Quand relation pas au sein de la meme DB ou quand backend pas DB, assoss stocké dans la DB principale de l'application.
 - [ ] Traiter domain pour relation (ie: one2many pour route '/user/paris60/' [('age', '>', '60'), ('adress.city', 'like', 'Paris')])
+- [ ] Création automatique des routes
 
 ## Gestion des hooks
 
-- [ ] Pourvoir executer des hooks sur les actions write(), update(), delete(), unlink() (appel method du manager)
-- [ ] Creation d'une class hook manager qui va lire la DB, Charger le bon module de hook en lui envoiyant les settings deserialisé (dict)
-- [ ] Hook plugable : Webook, message pour bus d'entreprise (ESB)
-- [ ] Chaque hook ajouter est enregistré en DB  avec les colonnes :
+- [x] Pourvoir executer des hooks sur les actions write(), update(), delete(), unlink() (appel method du manager)
+- [x] Creation d'une class hook manager qui va lire la DB, Charger le bon module de hook en lui envoiyant les settings deserialisé (dict)
+- [x] Hook plugable : Webook pour commencer, message pour bus d'entreprise (ESB)
+- [x] Chaque hook ajouter est enregistré en DB  avec les colonnes :
   * ressource (Nom de la classe en miniscule)
   * action (create, update, delete)
   * type (nom du module à utiliser : web, message)
-  * payload_type (json, xml, ...)
+  * date last execution
+  * message d'execution
+  * boolean pour activiation du hook enregistré
   * settings : parametre propre au hook (dict serialisé)
 - [X] Ajouter un attribut au ressource pour definir si la ressource est hookable ou pas
-- Cacher les hooks dans un redis ou memchache
+- [ ] Cacher les hooks dans un redis ou memchache
+- [ ] Token utiliser coté client pour calculer un hash (HMAC hexdiges) des data envoyer et calcul du meme hash coté server avec le meme token et comparaison.
 
 ## Permission
 

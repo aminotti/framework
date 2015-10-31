@@ -10,6 +10,7 @@ import lib.orm.base
 class Converter(object):
     @classmethod
     def toDict(cls, data):
+        """ Convert JSON to dict() """
         try:
             ret = json.loads(data, object_hook=cls._json_python)
         except Exception as e:
@@ -18,6 +19,7 @@ class Converter(object):
 
     @classmethod
     def fromDict(cls, data):
+        """ Convert dict() to JSON """
         try:
             if type(data) is list and len(data) == 1:
                 data = data[0]
@@ -47,6 +49,6 @@ class PythonJsonEncoder(json.JSONEncoder):
         elif isinstance(data, datetime.time):
             return data.strftime("%H:%M")
         elif isinstance(data, lib.orm.base.Mapper):
-            return vars(data)
+            return vars(data)  # ptet mieux de se servir de data._fields
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, data)

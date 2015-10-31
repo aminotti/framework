@@ -123,10 +123,18 @@ class HTTPMethods(object):
         dico = cls.getDataFromContentType()
 
         ressource = cls(dico)
-        ressource.write()
+        rid = ressource.create()
 
-        r = Response(None)
-        del r.headers['content-type']
+        if rid:
+            url = request.base_url + str(rid) + '/'
+            data = {"Location": url}
+
+            ctype, Converter = cls._getAcceptedContentType()
+            r = Response(Converter.fromDict(data), headers={"Content-type": "{};charset=UTF-8".format(ctype)})
+        else:
+            r = Response(None)
+            del r.headers['content-type']
+
         r.status_code = 201
         return r
 
@@ -139,7 +147,7 @@ class HTTPMethods(object):
 
         ressource = cls(dico)
         ressource.setIdFromDomain(domain)
-        ressource.write()
+        ressource.create()
 
         r = Response(None)
         del r.headers['content-type']
@@ -178,6 +186,7 @@ class HTTPMethods(object):
                 break
 
         # Default content type is JSON
+        # TODO RFC2616 sect 14.1, si wrong 'Accept' header : 406 (Not Acceptable). Si * ou pas de 'Accept' alors default json
         return "application/json", contenttype.Converter["application/json"]
 
     @classmethod
