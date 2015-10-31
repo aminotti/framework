@@ -31,3 +31,19 @@ def ressourceConstraints(self, value):
     if not models.get(ressource):
         raise Core400Exception("Ressource '{}' doesn't exist.".format(ressource))
     return ressource
+
+
+def write(self):
+    # Test if ressource is hookable before performing normal process
+    if models.get(self.ressource)._hookable:
+        super(self.__class__, self).write()
+    else:
+        raise Core400Exception("Ressource '{}' is not hookable.".format(self.ressource))
+
+
+def update(self, data2save, domain):
+    # Test if ressource is hookable before performing normal process
+    if models.get(self.ressource)._hookable:
+        super(self.__class__, self).update(data2save, domain)
+    else:
+        raise Core400Exception("Ressource '{}' is not hookable.".format(self.ressource))
