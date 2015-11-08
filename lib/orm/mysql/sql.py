@@ -138,7 +138,6 @@ class Sql(object):
             elif isinstance(col, BoolField) and colname in fields:
                 fields[colname] = fields[colname] is 1
             elif isinstance(col, BinaryField) and colname in fields and fields[colname]:
-                print type(col)
                 identifiers = list()
                 for identifier in cls._identifiers:
                     ids = getattr(cls, "_{}_field".format(identifier))

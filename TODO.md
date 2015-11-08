@@ -44,7 +44,7 @@
   * [x] POST/POST/PATCH => save data to type binaire
   * [x] save type binaire to DB et FS
   * [x] load type binaire from DB et FS (search() / get())
-  * [ ] Suppression type binaire : delete() (FS,  DB Ok)
+  * [x] Suppression type binaire : delete() (FS,  DB Ok)
   * [x] JSON convert type binaire en URL (GET ressource)
   * [ ] GET d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
   * [ ] PUT/PATCH d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>

@@ -29,6 +29,7 @@ from ..pool import ConnectionInfos, Pool
 from ...logger import debug
 from app.config import conf
 from lib.exceptions import *
+from lib.orm.fields import BinaryField
 
 
 class ORM(Mapper, Sql):
@@ -108,8 +109,19 @@ class ORM(Mapper, Sql):
 
     @classmethod
     def ormDelete(cls, domain):
+        # get binary col store on FS
+        binFS = [key.split('_')[1] for key, val in cls.__dict__.items() if isinstance(val, BinaryField) and val.backendFS]
+        if binFS:
+            ressources = cls.search(domain, binFS)
+
         req, data = cls._deleteSQL(domain)
         cls._exeSQL(req, data)
+
+        # Delete binaries files store on FS
+        if binFS:
+            for res in ressources:
+                for f in binFS:
+                    getattr(res, f).removeStreamFromFS()
 
     @classmethod
     def _exeSQL(cls, request, data=tuple()):

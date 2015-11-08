@@ -75,12 +75,17 @@ class Binary(object):
         """
         self.ressource = ressource
         self.identifiers = identifiers
-        path = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name, uuid + "." + self.extension)
+        self.path = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name, uuid + "." + self.extension)
 
-        with open(path, "rb") as infile:
+        with open(self.path, "rb") as infile:
             self.stream = infile.read()
 
+    def removeStreamFromFS(self):
+        """ Remove the stream from File system. loadStreamFromFS() have to be called first. """
+        if os.path.isfile(self.path):
+            os.unlink(self.path)
+
     def getURL(self):
-        """ Retrieve URL. """
+        """ Retrieve URL. loadStreamFromFS() or loadStreamFromDB() have to be called first."""
         identifiers = "/".join(self.identifiers)
         return "{}/{}/{}/{}.{}".format(self.base_url, self.ressource, identifiers, self.name, self.extension)
