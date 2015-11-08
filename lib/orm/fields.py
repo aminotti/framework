@@ -134,9 +134,9 @@ class BinaryField(Field):
         :param str mimeType: mime type of the binary file
         :param str extension: extension of the binary file
         """
-        if data.mimetype not in self.mimeTypes:
+        if data and data.mimetype not in self.mimeTypes:
             raise Core400Exception("Invalid mime types : '{}'".format(data.mimetype))
-        if not MimeType.checkExtension(data.mimetype, data.extension):
+        if data and not MimeType.checkExtension(data.mimetype, data.extension):
             raise Core400Exception("Mime type and extension mismatch : '{} - {}'".format(data.mimetype, data.extension))
 
 
@@ -242,8 +242,11 @@ class CurrencyField(Field):
 
         :param data: The field's value.
         """
-        if data and type(data) is not float and type(data) is not int:
-            raise Core400Exception("Invalid currency : '{}'".format(data))
+        if data:
+            try:
+                data = float(data)
+            except ValueError:
+                raise Core400Exception("Invalid currency : '{}'".format(data))
 
 
 class DateField(Field):
@@ -303,8 +306,11 @@ class DecimalField(Field):
 
         :param data: The field's value.
         """
-        if data and type(data) is not float and type(data) is not int:
-            raise Core400Exception("Invalid decimal : '{}'".format(data))
+        if data:
+            try:
+                data = float(data)
+            except ValueError:
+                raise Core400Exception("Invalid decimal : '{}'".format(data))
 
 
 class EmailField(Field):
@@ -402,8 +408,11 @@ class IntField(Field):
 
         :param data: The field's value.
         """
-        if data and type(data) is not int:
-            raise Core400Exception("Invalid integer : '{}'".format(data))
+        if data:
+            try:
+                data = int(data)
+            except ValueError:
+                raise Core400Exception("Invalid integer : '{}'".format(data))
 
 
 class SetField(Field):

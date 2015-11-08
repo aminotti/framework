@@ -27,7 +27,7 @@ import uuid
 
 from .sqlfilter import SQLFilter
 from lib.exceptions import *
-from lib.orm.fields import TimeField, BoolField, ImageField
+from lib.orm.fields import TimeField, BoolField, ImageField, BinaryField
 from lib.orm.binary import Binary
 
 
@@ -114,16 +114,15 @@ class Sql(object):
             if not col:
                 raise Core404Exception("Attribute '" + colname + "' doesn't exist.")
             if not col.compute:
-                f.append(col.fieldName or colname.lower())
+                f.append(col.fieldName or colname)
 
         return f
 
     @classmethod
-    def _revertColName(cls, fields):
+    def _reverseData(cls, fields):
         """
-        Remplace le nom sql de la colonne par le nom python de la colonne.
-
-        TODO Remplace l'attribut contenant les métadonnées d'un binary par une URL.
+        Replace SQL field name by python field name.
+        Replace SQL value by python value.
         """
         for colname in cls._columns:
             col = getattr(cls, "_{}_field".format(colname), None)
@@ -138,8 +137,26 @@ class Sql(object):
                 fields[colname] = (datetime.datetime.min + fields[colname]).time()
             elif isinstance(col, BoolField) and colname in fields:
                 fields[colname] = fields[colname] is 1
+            elif isinstance(col, BinaryField) and colname in fields and fields[colname]:
+                print type(col)
+                identifiers = list()
+                for identifier in cls._identifiers:
+                    ids = getattr(cls, "_{}_field".format(identifier))
+                    ids = ids.fieldName or identifier
+                    identifiers.append(str(fields[ids]))
 
-            # TODO Change metadata par URL quand type BinaryCol
+                if col.backendFS:
+                    metadata = fields[colname].split("\n")
+                    fields[colname] = Binary(colname, metadata[1], metadata[2])
+                    fields[colname].loadStreamFromFS(cls.__name__.lower(), metadata[0], identifiers)
+                else:
+                    if type(col) is ImageField:
+                        fields[colname] = Binary(colname, col.mimeType, col.extension, fields[colname])
+                        fields[colname].loadStreamFromDB(cls.__name__.lower(), identifiers)
+                    else:
+                        data = fields[colname].split("\n", 2)
+                        fields[colname] = Binary(colname, data[0], data[1], data[2])
+                        fields[colname].loadStreamFromDB(cls.__name__.lower(), identifiers)
 
     def _prepareData(self, data2save=None):
         """
@@ -163,7 +180,7 @@ class Sql(object):
 
             if not col.compute and val and procceed:
                 # Colname
-                k.append(col.fieldName or colname.lower())
+                k.append(col.fieldName or colname)
 
                 # Value
                 if type(val) is list:
@@ -202,7 +219,7 @@ class Sql(object):
 
         for colname in cls._columns:
             col = getattr(cls, '_' + colname + '_field')
-            name = col.fieldName or colname.lower()
+            name = col.fieldName or colname
             sql += getattr(Sql, "_{}__get{}SQL".format(Sql.__name__, col.__class__.__name__))(name, col)
 
         # Indexes
@@ -247,7 +264,7 @@ class Sql(object):
             columns = list()
             for colname in cols:
                 col = getattr(cls, "_" + colname + "_field")
-                columns.append(col.fieldName or colname.lower())
+                columns.append(col.fieldName or colname)
 
             sql += "INDEX {} ({}),\n".format(idxname, ",".join(columns))
 

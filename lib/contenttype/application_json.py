@@ -5,6 +5,7 @@ import datetime
 from ..exceptions import *
 from ..rfc3339 import Parser
 import lib.orm.base
+from lib.orm.binary import Binary
 
 
 class Converter(object):
@@ -48,6 +49,8 @@ class PythonJsonEncoder(json.JSONEncoder):
             return (datetime.datetime.min + data).time().strftime("%H:%M")
         elif isinstance(data, datetime.time):
             return data.strftime("%H:%M")
+        elif isinstance(data, Binary):
+            return data.getURL()
         elif isinstance(data, lib.orm.base.Mapper):
             return vars(data)  # ptet mieux de se servir de data._fields
         # Let the base class default method raise the TypeError

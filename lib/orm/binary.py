@@ -41,9 +41,14 @@ class Binary(object):
         self.extension = extension
         self.stream = stream
 
-    def save(self, ressource, identifiers):
+    def save(self, ressource, identifier):
+        """ Save a binary to file on File system.
+
+        :param str ressource: Name of the ressource.
+        :param str identifier: UUID use as filename.
+        """
         directory = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name)
-        path = os.path.join(directory, identifiers + "." + self.extension)
+        path = os.path.join(directory, identifier + "." + self.extension)
 
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -51,6 +56,31 @@ class Binary(object):
         with open(path, 'wb') as outfile:
             outfile.write(self.stream.getvalue())
 
-    def getURL(self, tenant, identifiers):
-        # TODO get relative URL
-        pass
+    def loadStreamFromDB(self, ressource, identifiers):
+        """ Load extra infos for stream from Database.
+
+        :param str ressource: Name of the ressource.
+        :param str uuid: UUID use as filename.
+        :param list identifiers: List of identifiers of the ressource.
+        """
+        self.ressource = ressource
+        self.identifiers = identifiers
+
+    def loadStreamFromFS(self, ressource, uuid, identifiers):
+        """ Load a file to self.stream from File system.
+
+        :param str ressource: Name of the ressource.
+        :param str uuid: UUID use as filename.
+        :param list identifiers: List of identifiers of the ressource.
+        """
+        self.ressource = ressource
+        self.identifiers = identifiers
+        path = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name, uuid + "." + self.extension)
+
+        with open(path, "rb") as infile:
+            self.stream = infile.read()
+
+    def getURL(self):
+        """ Retrieve URL. """
+        identifiers = "/".join(self.identifiers)
+        return "{}/{}/{}/{}.{}".format(self.base_url, self.ressource, identifiers, self.name, self.extension)

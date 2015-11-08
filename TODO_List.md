@@ -32,19 +32,15 @@
 |lib/httpmethod.py|249| Handle multipart/mixed, faire une lib pour gere corp http/mail :|
 |lib/context.py|80| checker champs requis présent dans yaml et bon type associé|
 |lib/context.py|87|200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)|
-|lib/orm/binary.py|55| get relative URL|
 Fichier binaire ./lib/orm/pool.pyc correspondant|
 |lib/orm/pool.py|33:.. todo::|
 |lib/orm/fields.py|189| implémenter la conversion à la bonne taille|
-Fichier binaire ./lib/orm/mysql/sql.pyc correspondant|
 |lib/orm/mysql/orm.py|56| Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)|
-|lib/orm/mysql/orm.py|65| create table if not exist|
-|lib/orm/mysql/orm.py|66| exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;|
-|lib/orm/mysql/orm.py|67| si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;|
+|lib/orm/mysql/orm.py|66| create table if not exist|
+|lib/orm/mysql/orm.py|67| exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;|
+|lib/orm/mysql/orm.py|68| si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;|
 |lib/orm/mysql/sql.py|98| remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())|
-|lib/orm/mysql/sql.py|126:         Remplace l'attribut contenant les métadonnées d'un binary par une URL.|
-|lib/orm/mysql/sql.py|142| Change metadata par URL quand type BinaryCol|
-|lib/orm/mysql/sql.py|211| gerer creation foreign key|
+|lib/orm/mysql/sql.py|228| gerer creation foreign key|
 |lib/orm/base.py|64| gerer relations|
 |lib/orm/base.py|83| Add internal fields (on backend herited class??)|
 |lib/orm/base.py|138| Check ACL RW allowed|

@@ -139,7 +139,7 @@ class Mapper(HTTPMethods):
             # Serialize dict to string
             if isinstance(field, StringField) and type(value) is dict:
                 value = json.dumps(value, ensure_ascii=False)
-            elif isinstance(field, ImageField):
+            elif isinstance(field, ImageField) and value:
                 field.convert(value)
             # Syntax/type checks
             field.check(value)

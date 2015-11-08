@@ -4,6 +4,7 @@
 
 ## Next TODO
 
+- Faire un addon 'test' pour test unitaire (avec tous type de fiedls possible image binary fs pas fs, field minsucle, majuscule,...)
 - tester country avec hookable à true
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
@@ -37,14 +38,14 @@
 - [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
 - [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
 - [ ] Traiter binary file
-  * path stockage FS : '/var/data/' + '<tenant>/<ressourcename>\_<identifier>_<attribute>.<ext>
+  * path stockage FS : '/var/data/' + '<tenant>/<ressourcename>/<attribute>/<uuid>.<ext>
   * path URL : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
   * [x] Création type binaire
   * [x] POST/POST/PATCH => save data to type binaire
   * [x] save type binaire to DB et FS
-  * [ ] load type binaire from DB et FS (search() / get())
+  * [x] load type binaire from DB et FS (search() / get())
   * [ ] Suppression type binaire : delete() (FS,  DB Ok)
-  * [ ] JSON convert type binaire en URL (GET ressource)
+  * [x] JSON convert type binaire en URL (GET ressource)
   * [ ] GET d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
   * [ ] PUT/PATCH d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
 
