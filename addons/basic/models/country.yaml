@@ -26,7 +26,6 @@ fields:
     flag:
         type: image
         require: False
-        # backendFS: True
         mimeType: image/jpeg
         extension: jpg
         mimeTypes:

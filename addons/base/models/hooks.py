@@ -43,7 +43,6 @@ def typeConstraint(self, value):
 
 
 def create(self):
-    print "#########", self
     self._hookable = False
 
     # Test if ressource is hookable before performing normal process

@@ -41,7 +41,6 @@ Fichier binaire ./lib/orm/mysql/sql.pyc correspondant|
 |lib/orm/mysql/orm.py|65| create table if not exist|
 |lib/orm/mysql/orm.py|66| exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;|
 |lib/orm/mysql/orm.py|67| si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;|
-|lib/orm/mysql/orm.py|86| raise exception si data2save contient des binary/image sauver sur FS (car pointrons tous sur meme fichier et delete fera des dégats...) ATTENTION comme write utilise update, la modification d'un binary sur FS sera plus possible|
 |lib/orm/mysql/sql.py|98| remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())|
 |lib/orm/mysql/sql.py|126:         Remplace l'attribut contenant les métadonnées d'un binary par une URL.|
 |lib/orm/mysql/sql.py|142| Change metadata par URL quand type BinaryCol|

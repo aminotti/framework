@@ -83,10 +83,15 @@ class ORM(Mapper, Sql):
         return ressources
 
     def update(self, data2save, domain):
-        # FIXME raise exception si data2save contient des binary/image sauver sur FS (car pointrons tous sur meme fichier et delete fera des dégats...) ATTENTION comme write utilise update, la modification d'un binary sur FS sera plus possible
+        self._checkData2save(data2save)
         req, data = self._updateSQL(data2save, domain)
         self._exeSQL(req, data)
         super(ORM, self).update(data2save, domain)
+
+    def write(self):
+        req, data = self._updateSQL(self._columns, self._ids2domain())
+        self._exeSQL(req, data)
+        super(ORM, self).write()
 
     def create(self):
         # Test if require fields are set

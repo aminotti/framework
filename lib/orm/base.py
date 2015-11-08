@@ -25,7 +25,7 @@ import types
 import json
 from flask import current_app
 from ..exceptions import *
-from .fields import Field, Index, IntField, StringField, ImageField
+from .fields import Field, Index, IntField, StringField, BinaryField, ImageField
 from ..logger import debug, error
 from ..httpmethod import HTTPMethods
 from app.hookmanager import HookManager
@@ -343,19 +343,14 @@ class Mapper(HTTPMethods):
 
     def write(self):
         """ Perform write on the ressource. """
-        domain = list()
-        for identifier in self._identifiers:
-            domain.append((identifier, '=', getattr(self, identifier)))
-
-        self.update(self._columns, domain)
+        if self._hookable:
+            identifiers = [{key: self._fields[key] for key in self._identifiers}]
+            if identifiers:
+                HookManager.exeUpdate(self, self._columns, identifiers)
 
     def unlink(self):
         """ Delete the ressource. """
-        domain = list()
-        for identifier in self._identifiers:
-            domain.append((identifier, '=', getattr(self, identifier)))
-
-        self.delete(domain)
+        self.delete(self._ids2domain())
 
     def _checkRequires(self):
         # Check that require's fields are set
@@ -363,6 +358,17 @@ class Mapper(HTTPMethods):
             field = getattr(self, '_' + fieldname + '_field')
             if field.require and not self._fields[fieldname]:
                 raise Core400Exception("Attribut '{}' is required".format(fieldname))
+
+    def _checkData2save(self, data2save):
+        """ Check if data to save are allowed to update several ressource.
+
+        :param list data2save : List of data to save.
+        :raises Core400Exception: if data2save content is not allowed.
+        """
+        for fieldname in data2save:
+            col = getattr(self, '_' + fieldname + '_field')
+            if isinstance(col, BinaryField) and col.backendFS:
+                raise Core400Exception("Binary/image field store on File system is forbidden on PATCH/update()")
 
     @classmethod
     def _domain2Id(cls, domain):
@@ -372,3 +378,9 @@ class Mapper(HTTPMethods):
         for res in resu:
             identifiers.append({key: res._fields[key] for key in cls._identifiers})
         return identifiers
+
+    def _ids2domain(self):
+        domain = list()
+        for identifier in self._identifiers:
+            domain.append((identifier, '=', getattr(self, identifier)))
+        return domain
