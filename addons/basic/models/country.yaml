@@ -16,10 +16,19 @@ fields:
     ville:
         type: string
         compute: villeCompute
+    photo:
+        type: binary
+        backendFS: True
+        require: False
+        mimeTypes:
+            - 'image/jpeg'
+            - 'image/png'
     flag:
         type: image
         require: False
         # backendFS: True
+        mimeType: image/jpeg
+        extension: jpg
         mimeTypes:
-            - 'image/jpeg'
-            - 'image/png'
+            - image/jpeg
+            - image/png

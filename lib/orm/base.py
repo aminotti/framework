@@ -25,7 +25,7 @@ import types
 import json
 from flask import current_app
 from ..exceptions import *
-from .fields import Field, Index, IntField, StringField
+from .fields import Field, Index, IntField, StringField, ImageField
 from ..logger import debug, error
 from ..httpmethod import HTTPMethods
 from app.hookmanager import HookManager
@@ -139,6 +139,8 @@ class Mapper(HTTPMethods):
             # Serialize dict to string
             if isinstance(field, StringField) and type(value) is dict:
                 value = json.dumps(value, ensure_ascii=False)
+            elif isinstance(field, ImageField):
+                field.convert(value)
             # Syntax/type checks
             field.check(value)
             # TODO trigger workflow event onchange

@@ -47,7 +47,7 @@ class Context(object):
         path, name = os.path.split(root)
         module = root + '.py'
         if os.path.isfile(module):
-            mod = imp.load_source('{}'.format(tenant, name), module)
+            mod = imp.load_source('{}_{}'.format(tenant, name), module)
             for attr in dir(mod):
                 fct = getattr(mod, attr, None)
                 # print type(fct)

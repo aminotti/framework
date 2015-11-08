@@ -114,6 +114,7 @@ class BinaryField(Field):
     See :py:class:`Field` for extra arguments.
 
     :param list mimeTypes: List of allowed mime types, **default** are :py:attr:`~lib.mimetype.MimeType.openformat`.
+    :param bool backendFS: True to store data on file system, False to store in database.
 
         .. attention::
 
@@ -124,19 +125,19 @@ class BinaryField(Field):
         self.mimeTypes = kw.pop('mimeTypes', MimeType.openformat)
         if not MimeType.check(self.mimeTypes):
             raise Core500Exception("Unknow Mime Type : " + str(self.mimeTypes))
-        # self.backendFS = kw.pop('backendFS', True) => always backend now
+        self.backendFS = kw.pop('backendFS', False)
         super(BinaryField, self).__init__(**kw)
 
-    def check(self, mimeType, extension):
+    def check(self, data):
         """ Verify that mime type is allowed and check that mime type and extension match.
 
         :param str mimeType: mime type of the binary file
         :param str extension: extension of the binary file
         """
-        if mimeType not in self.mimeTypes:
-            raise Core400Exception("Invalid mime types : '{}'".format(mimeType))
-        if not MimeType.checkExtension(mimeType, extension):
-            raise Core400Exception("Mime type and extension mismatch : '{} - {}'".format(mimeType, extension))
+        if data.mimetype not in self.mimeTypes:
+            raise Core400Exception("Invalid mime types : '{}'".format(data.mimetype))
+        if not MimeType.checkExtension(data.mimetype, data.extension):
+            raise Core400Exception("Mime type and extension mismatch : '{} - {}'".format(data.mimetype, data.extension))
 
 
 class ImageField(BinaryField):
@@ -157,15 +158,24 @@ class ImageField(BinaryField):
         if self.mimeType not in self.mimeTypes:
             raise Core500Exception("Mime Type : {} not in {}.".format(self.mimeType, str(self.mimeTypes)))
         if not MimeType.checkExtension(self.mimeType, self.extension):
-            raise Core400Exception("Mime type and extension mismatch : '{} - {}'".format(self.mimeTypes, self.extension))
+            raise Core400Exception("Mime type and extension mismatch : '{} - {}'".format(self.mimeType, self.extension))
+
+        if self.extension in ['jpg', 'jpeg', 'jpe']:
+            self._PIL_filetype = "JPEG"
+        elif self.extension in ['png']:
+            self._PIL_filetype = "PNG"
+        elif self.extension in ['gif']:
+            self._PIL_filetype = "GIF"
+        else:
+            self._PIL_filetype = None
+
         super(ImageField, self).__init__(mimeTypes=self.mimeTypes, **kw)
 
-    def convert(self, data):
+    def convert(self, binary):
         """
         Convert a image to the type define in ``self.mineType``.
 
-        :param stream data: The stream to convert.
-        :return stream: Stream of the converted image.
+        :param Binary data: The stream to convert.
 
         .. note::
 
@@ -174,21 +184,16 @@ class ImageField(BinaryField):
             http://pillow.readthedocs.org/en/latest/handbook/image-file-formats.html
 
         """
-        if self.extension in ['jpg', 'jpeg', 'jpe']:
-            filetype = "JPEG"
-        elif self.extension in ['png']:
-            filetype = "PNG"
-        elif self.extension in ['gif']:
-            filetype = "GIF"
-        else:
-            return data
-
-        image = Image.open(data)
-        # TODO implémenter la conversion à la bonne taille
-        # image = image.resize((width, height))
-        tmp = io.BytesIO()
-        image.save(tmp, filetype)
-        return tmp
+        if self._PIL_filetype and binary.mimetype != self.mimeType:
+            image = Image.open(binary.stream)
+            # TODO implémenter la conversion à la bonne taille
+            # image = image.resize((width, height))
+            tmp = io.BytesIO()
+            image.save(tmp, self._PIL_filetype)
+            binary.stream = tmp
+            binary.mimetype = self.mimeType
+            binary.stream = tmp
+            binary.extension = self.extension
 
 
 class BoolField(Field):

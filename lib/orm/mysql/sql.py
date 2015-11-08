@@ -22,10 +22,13 @@
 ##############################################################################
 
 import datetime
+import io
+import uuid
 
 from .sqlfilter import SQLFilter
 from lib.exceptions import *
-from lib.orm.fields import TimeField, BoolField
+from lib.orm.fields import TimeField, BoolField, ImageField
+from lib.orm.binary import Binary
 
 
 class Sql(object):
@@ -165,31 +168,31 @@ class Sql(object):
                 # Value
                 if type(val) is list:
                     v.append(",".join(val))
+                elif type(val) is Binary:
+                    if col.backendFS:
+                        ids = uuid.uuid4().hex
+
+                        # data to FS
+                        val.save(self.__class__.__name__.lower(), ids)
+                        # metadata to DB
+                        v.append(ids + "\n" + val.mimetype + "\n" + val.extension)
+                    else:
+                        if type(col) is ImageField:
+                            v.append(val.stream.getvalue())
+                        else:
+                            data = io.BytesIO()
+
+                            # metadata
+                            data.write(val.mimetype)
+                            data.write("\x0A")
+                            data.write(str(val.extension))
+                            data.write("\x0A")
+
+                            # data
+                            data.write(val.stream.getvalue())
+                            v.append(data.getvalue())
                 else:
                     v.append(val)
-                """
-                elif type(value) is FileStorage:
-                    fileExtension = os.path.splitext(value.filename)[1]
-                    filename = uuid.uuid4().hex
-                    setattr(sqlobj, key, json.dumps({'filename': filename, 'type': value.mimetype, 'extension': fileExtension}))
-                    if getattr(sqlobj.__class__, key, None).backendFS:
-                        if lib.orm.data_prefix:
-                            prefix = lib.orm.data_prefix
-                        else:
-                            prefix = ''
-                        if type(col) is lib.orm.ImageField:
-                            value = col.convert(value.stream).getvalue()
-                            f = io.FileIO(os.path.join(lib.orm.DATA_DIR, prefix, filename + fileExtension), 'w')
-                            f.write(value)
-                            f.close()
-                        else:
-                            value.save(os.path.join(lib.orm.DATA_DIR, prefix, filename + fileExtension))
-                    else:
-                        if type(col) is lib.orm.ImageField:
-                            setattr(sqlobj, key + '_data', col.convert(value.stream).getvalue())
-                        else:
-                            setattr(sqlobj, key + '_data', value.stream.getvalue())
-                """
 
         return (k, v)
 
@@ -343,16 +346,16 @@ class Sql(object):
 
     @classmethod
     def __getBinaryFieldSQL(cls, name, col):
-        # TODO gerer binary field pour create columns
-        """
-        # la colone contiendra les métadonnées du fichier, si backendFS est a False alors on créer un blob pour stocker le fichier
         default, null, unique = cls.__getColStruct(col)
-        sql = "{} {}{},\n".format(name, "VARCHAR(255)", null)
-        if not col.backendFS:
-            sql += "{}_data {}{},\n".format(name, "BLOB", null)
+
+        if col.backendFS:
+            # Only metadata are store on DB
+            sql = "{} {}{},\n".format(name, "TEXT", null)
+        else:
+            # Everything is store on DB
+            sql = "{} {}{},\n".format(name, "BLOB", null)
+
         return sql
-        """
-        return ""
 
     @classmethod
     def __getImageFieldSQL(cls, name, col):

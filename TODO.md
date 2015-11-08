@@ -1,20 +1,10 @@
-# TODO List
+# TODO List for v1.0 beta
 
-## Next
+- Pour ne plus avoir a enregistrer des binary en DB modifier en ajoutant un en tete de type, faire une class qui test le type de fichier en fonction de l'empreinte du binaier (PNG dans header .png par exemple) (sinon renvoi application/octet-stream .bin)
 
-- Reflechir au type binaire
- * POST/PUT/PATCH : Envoyer en mutlipart avec le binaire dans le corp
- * GET : l'attribut vaut l'URL /<ressource>/id/attribute.ext
- * l'attribut binaire n'est chargé que pour save en DB
- * pour stockage db ajouter en tete avec extension et mine_type
+## Next TODO
 
- * BinaryField est un dico qui cotient, mine-type, extension, data
- * mimetype et data ajouter en header du binary pour save dans db
- * les convertion vert ouput format(csv, xml,..) qui transformt le binary field en URL
- * Definir traitement qd on HTTP GET une URL d'un binary
- * Doit-on faire un traitement pour faire directemnet un PUT sur un binary?
-
-- Faire une ressource binary/file/fsstorage dans module base pour permettre de faire facilement one2one pour save du FS au lieux DB
+- tester country avec hookable à true
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
 - Reflechir au cache des donnée persistance (redis, memcache) : ajouter un attribut au ressource pour dire si on veut cacher ou pas (fait: _cacheable)
@@ -41,13 +31,22 @@
 
 ## Implementer les http method
 
--  [x] _getHTTP => search() => creation d'une liste d'instance de ressource
--  [x] _putHTTP => write() => creation d'un instance de la ressource (id fourni)
--  [x] _postHTTP => write() => creation d'un instance de la ressource (id auto)
--  [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
--  [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
-- Traiter binary file (Ajouter metadata dans header du file qd)
--  [ ] getBinary classmethod
+- [x] _getHTTP => search() => creation d'une liste d'instance de ressource
+- [x] _putHTTP => write() => creation d'un instance de la ressource (id fourni)
+- [x] _postHTTP => write() => creation d'un instance de la ressource (id auto)
+- [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
+- [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
+- [ ] Traiter binary file
+  * path stockage FS : '/var/data/' + '<tenant>/<ressourcename>\_<identifier>_<attribute>.<ext>
+  * path URL : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
+  * [x] Création type binaire
+  * [x] POST/POST/PATCH => save data to type binaire
+  * [x] save type binaire to DB et FS
+  * [ ] load type binaire from DB et FS (search() / get())
+  * [ ] Suppression type binaire : delete() (FS,  DB Ok)
+  * [ ] JSON convert type binaire en URL (GET ressource)
+  * [ ] GET d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
+  * [ ] PUT/PATCH d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
 
 ## Traiter relation interbackend
 
@@ -77,10 +76,17 @@
 - [ ] Cacher les hooks dans un redis ou memchache
 - [ ] Token utiliser coté client pour calculer un hash (HMAC hexdiges) des data envoyer et calcul du meme hash coté server avec le meme token et comparaison.
 
+## Gestion du cache
+
+- [x] Ajout d'un attribut boolean '_cacheable' pour dire si la ressource doit etre mise en cache ou pas
+- [ ] Plusieur systeme de cache possible : redis, memchache,...
+
 ## Permission
 
 * Auditer les requetes de Taiga pour l'authent vu que c'est full API
 * Tester webservice stormpath pour voir comment sont gérer les permission avec un system d'authent détaché
+* https://auth0.com/blog/2014/12/02/using-json-web-tokens-as-api-keys/
+* http://jwt.io/
 
 - [ ] RO & RW
 - [ ] par fields
@@ -88,7 +94,44 @@
 
 ## Authentification
 
-- Web service : https://stormpath.com/blog/easy-single-sign-on-idsite/
+- Création d'un OpenID Provider (OP) qui :
+ * faut l'authent sur une DB, un annuaire LDAP/AD, IMAP/POP, OAuth2.0,...
+ * Récupere l'identité dans la DB ou dans l'annuaire LDAP/AD, ou par web service avec token OAuth.
+ * Donc création de connecteurs pour les différents backend possible
+- Gestion des permission : 2 possibilités :
+ * Soit on utilise le 'sub' du ID token (JWS) comme identifiant et le Relying Party (RP) gère lui meme ses permissions
+ * Soit l'OP permet de géré des rôles/group/scope et envoi infos dans token JWS, le RP a juste a verifier que le role requis est bien contenu dans le token. 
+ * Avantage/inconvenient :
+  - solution 2 permettra pas de se connecter en passant par un OP tiers 100% dynamique puisque lui ne fournira que le 'sub' dans sont token.
+  - Solution 2 permet une gestion centralisé user + permission
+  - Solution 2 permet de créer des role/scope/group en commun utilisable pour tout les RP
+  - Solution 2 polu l'ID Token en ajoutant des infos qui ne seront pas exploiter par les RP tiers qui utiliserons notre OP
+  - Solution 1 lit les role,group, permission au RP et non a l'OP => la gestion des permission en fonction des group role doit etre redeveloppez pour chaque RP.
+
+- Web service :
+ * https://stormpath.com/blog/easy-single-sign-on-idsite/
+ * https://auth0.com/how-it-works
+- SAML
+- CAS
+- https://auth0.com/docs/protocols
+- https://auth0.com/docs/identityproviders
+
+### OAuth 2.0
+
+- https://tools.ietf.org/html/rfc6749
+- https://tools.ietf.org/html/rfc6750
+- https://www.digitalocean.com/community/tutorials/an-introduction-to-oauth-2
+- Appli doit etre enregistré au préalable (fourni nom, url callback,...) et obtien id et password.
+- 4 Types d'Authorization Grant pour obtenir le token :
+ * Authorization Code: server-side Applications (app php qui va utiliser une API)
+ * Implicit: Mobile Apps or HTML5/JS  App (run on the user's device)
+ * Resource Owner Password Credentials: used with trusted Applications, app dev/detenu par le fournisseur d'API
+ * Client Credentials: credential de l'appli, pas d'un user
+- http://oauth.net/articles/authentication/#openid-connect
+- http://nat.sakimura.org/2013/07/28/write-openid-connect-server-in-three-simple-steps/
+- http://nat.sakimura.org/2014/12/10/making-a-javascript-openid-connect-client/
+- https://auth0.com/blog/2014/01/27/ten-things-you-should-know-about-tokens-and-cookies/
+
 
 ## Autres
 
@@ -99,6 +142,6 @@
   * Composer de d'activité relié par des transition
   * 4 type d'activité : dummy, function, stop all, subworkflow
   * 3 critère pour les transition : condition, signal, trigger
-- Offline, sync Online
+- Offline, sync Online : https://auth0.com/blog/2015/10/30/creating-offline-first-web-apps-with-service-workers/
 - Doc auto API rest (d'apres commentaire et codes routes???)
 - UI XML to generate HTML, iOS, Android... donc code generer a partir des fichiers du backend ou separer complétement backend et frontend???.

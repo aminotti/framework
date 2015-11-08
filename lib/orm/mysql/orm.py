@@ -67,7 +67,7 @@ class ORM(Mapper, Sql):
         # TODO si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;
         # add columns or modify columns
         # cls._exeSQL(cls._dropTableSQL())
-        # cls._exeSQL(cls._createTableSQL())
+        cls._exeSQL(cls._createTableSQL())
         pass
 
     @classmethod
@@ -83,6 +83,7 @@ class ORM(Mapper, Sql):
         return ressources
 
     def update(self, data2save, domain):
+        # FIXME raise exception si data2save contient des binary/image sauver sur FS (car pointrons tous sur meme fichier et delete fera des dégats...) ATTENTION comme write utilise update, la modification d'un binary sur FS sera plus possible
         req, data = self._updateSQL(data2save, domain)
         self._exeSQL(req, data)
         super(ORM, self).update(data2save, domain)

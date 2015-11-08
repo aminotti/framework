@@ -27,6 +27,8 @@ from flask import request
 
 from .exceptions import *
 from lib import contenttype
+from lib.orm.binary import Binary
+from lib.orm.fields import BinaryField
 # from lib.orm import ORMFilter, BinaryField, SQLRelationship, one2many
 
 
@@ -218,30 +220,35 @@ class HTTPMethods(object):
             * GET|PUT /binary/<ressource>/<id1>[/<id2>]/attribute.ext
             * del quand lattribut de la ressource est set a NULL (au lieux de contenir URL)
         """
+        # TODO documenter les different content-type possible avec leur contenu de body
         for ctype, conv in contenttype.Converter.items():
             if ctype in request.headers['Content-Type']:
                 return conv.toDict(request.data)
                 break
-
-        if 'multipart/form-data' in request.headers['Content-Type']:
-            pass  # TODO implementaire pour binary
+        if 'application/x-www-form-urlencoded' in request.headers['Content-Type']:
+            # TODO gerer POST normal (x-www-form-urlencode) formulaire (voir tests/form.html)
+            print request.data
             return dict()
-            """
+        elif 'multipart/form-data' in request.headers['Content-Type']:
             for val in request.form.values():
-                dico = json2python(val)
+                # TODO Actuelement un seul attribut de form envoyer qui contient un json avec tout les fields :
+                # - Remplacer par : un attribut de form par field (plus de notion de content type) => voir tests/form_file.html
+                # - Gerer les contents type des sous part (json, xml, file,...) avec 'multipart/mixed'
+                dico = contenttype.Converter['application/json'].toDict(val)
             for key, val in request.files.items():
                 # Check field name and type
-                col = getattr(cls, key, None)
+                col = getattr(cls, "_{}_field".format(key), None)
                 if col is None or not isinstance(col, BinaryField):
                     raise Core400Exception("Bad binary attribute : '{}'".format(key))
-                extension = os.path.splitext(val.filename)[1][1:]
-                col.check(val.mimetype, extension)
 
-                dico[key] = val
+                binary = Binary(key, val.mimetype, os.path.splitext(val.filename)[1][1:], val.stream)
+
+                dico[key] = binary
                 return dico
-            """
         elif 'multipart/mixed' in request.headers['Content-Type']:
-            # TODO Handle multipart/mixed
+            # TODO Handle multipart/mixed, faire une lib pour gere corp http/mail :
+            # Extract boundary from content-type headers
+            # parse request.data with boundary to get dict() : {'subcontenttype1': 'data1', 'subcontenttype2':'data2', ...}
             print request.data
             return dict()
         else:
