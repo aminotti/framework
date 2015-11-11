@@ -26,6 +26,7 @@ import json
 from flask import current_app
 from ..exceptions import *
 from .fields import Field, Index, IntField, StringField, BinaryField, ImageField
+from .binary import Binary
 from ..logger import debug, error
 from ..httpmethod import HTTPMethods
 from app.hookmanager import HookManager
@@ -141,17 +142,22 @@ class Mapper(HTTPMethods):
                 value = json.dumps(value, ensure_ascii=False)
             elif isinstance(field, ImageField) and value:
                 field.convert(value)
-            # Syntax/type checks
-            field.check(value)
+            # Save uuid of old file store on FS when updating Binary value
+            if isinstance(self._fields[name], Binary) and isinstance(value, Binary):
+                value.uuid = self._fields[name].uuid
             # TODO trigger workflow event onchange
             # Call On change method
             if field.onchange:
+                # Syntax/type checks before onChange
+                field.check(value)
                 f = getattr(self, field.onchange, None)
                 if not f:
                     raise Core500Exception("On change method not found : '{}'".format(field.onchange))
                 value = f(self._fields[name], value)
             # Applying constraints
             if field.constraints:
+                # Syntax/type checks before constraint
+                field.check(value)
                 f = getattr(self, field.constraints, None)
                 if not f:
                     raise Core500Exception("Constraints method not found : '{}'".format(field.constraints))
@@ -159,9 +165,10 @@ class Mapper(HTTPMethods):
             # Set to default value if value is None
             if not value and field.default:
                 value = field.default
+            # Syntax/type checks
+            field.check(value)
             # Don"t set to None require's fields
             if (not field.require or value) and not field.compute:
-                field.check(value)
                 self._fields[name] = value
         # TODO elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)
         else:

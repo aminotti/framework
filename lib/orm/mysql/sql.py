@@ -146,16 +146,16 @@ class Sql(object):
 
                 if col.backendFS:
                     metadata = fields[colname].split("\n")
-                    fields[colname] = Binary(colname, metadata[1], metadata[2])
-                    fields[colname].loadStreamFromFS(cls.__name__.lower(), metadata[0], identifiers)
+                    fields[colname] = Binary(cls.__name__.lower(), colname, metadata[1], metadata[2], uuid=metadata[0])
+                    fields[colname].loadStreamFromFS(identifiers)
                 else:
                     if type(col) is ImageField:
-                        fields[colname] = Binary(colname, col.mimeType, col.extension, fields[colname])
-                        fields[colname].loadStreamFromDB(cls.__name__.lower(), identifiers)
+                        fields[colname] = Binary(cls.__name__.lower(), colname, col.mimeType, col.extension, io.BytesIO(fields[colname]))
+                        fields[colname].loadStreamFromDB(identifiers)
                     else:
                         data = fields[colname].split("\n", 2)
-                        fields[colname] = Binary(colname, data[0], data[1], data[2])
-                        fields[colname].loadStreamFromDB(cls.__name__.lower(), identifiers)
+                        fields[colname] = Binary(cls.__name__.lower(), colname, data[0], data[1], io.BytesIO(data[2]))
+                        fields[colname].loadStreamFromDB(identifiers)
 
     def _prepareData(self, data2save=None):
         """
@@ -186,12 +186,15 @@ class Sql(object):
                     v.append(",".join(val))
                 elif type(val) is Binary:
                     if col.backendFS:
-                        ids = uuid.uuid4().hex
+                        # Remove old file on FS before saving new one
+                        if val.uuid:
+                            val.removeStreamFromFS()
+                        val.uuid = uuid.uuid4().hex
 
                         # data to FS
-                        val.save(self.__class__.__name__.lower(), ids)
+                        val.save()
                         # metadata to DB
-                        v.append(ids + "\n" + val.mimetype + "\n" + val.extension)
+                        v.append(val.uuid + "\n" + val.mimetype + "\n" + val.extension)
                     else:
                         if type(col) is ImageField:
                             v.append(val.stream.getvalue())
@@ -199,7 +202,7 @@ class Sql(object):
                             data = io.BytesIO()
 
                             # metadata
-                            data.write(val.mimetype)
+                            data.write(str(val.mimetype))
                             data.write("\x0A")
                             data.write(str(val.extension))
                             data.write("\x0A")

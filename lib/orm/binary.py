@@ -22,70 +22,69 @@
 ##############################################################################
 
 import os
+import io
 from flask import current_app
 from app.config import conf
 
 
 class Binary(object):
-    base_url = "/binary"
+    base_url = "/binaries"
 
-    def __init__(self, name=None, mimetype=None, extension=None, stream=None):
+    def __init__(self, ressource, name, mimetype, extension, stream=None, uuid=None):
         """ Create new binary object.
 
-        ;param str name: The name of the ressource's field which use these stream as value.
-        ;param str extension: extension use in filename of the stream
-        ;param str stream: The steam of binary data.
+        :param str ressource: Name of the ressource
+        :param str attribute: The name of the ressource's field which use these stream as value.
+        :param str extension: extension use in filename of the stream
+        :param io.BytesIO stream: The steam of binary data.
+        :parma str uuid: UUID use as filename when storing on file system
         """
-        self.name = name
+        self.ressource = ressource
+        self.attribute = name
         self.mimetype = mimetype
         self.extension = extension
         self.stream = stream
+        self.uuid = uuid
 
-    def save(self, ressource, identifier):
-        """ Save a binary to file on File system.
+    def save(self):
+        """ Save a binary to file on File system. """
 
-        :param str ressource: Name of the ressource.
-        :param str identifier: UUID use as filename.
-        """
-        directory = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name)
-        path = os.path.join(directory, identifier + "." + self.extension)
-
+        directory = os.path.join(conf.data_dir, current_app.tenant, self.ressource, self.attribute)
+        path = os.path.join(directory, self.uuid + "." + self.extension)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         with open(path, 'wb') as outfile:
             outfile.write(self.stream.getvalue())
 
-    def loadStreamFromDB(self, ressource, identifiers):
+    def loadStreamFromDB(self, identifiers):
         """ Load extra infos for stream from Database.
 
-        :param str ressource: Name of the ressource.
-        :param str uuid: UUID use as filename.
         :param list identifiers: List of identifiers of the ressource.
         """
-        self.ressource = ressource
         self.identifiers = identifiers
 
-    def loadStreamFromFS(self, ressource, uuid, identifiers):
+    def loadStreamFromFS(self, identifiers):
         """ Load a file to self.stream from File system.
 
-        :param str ressource: Name of the ressource.
-        :param str uuid: UUID use as filename.
         :param list identifiers: List of identifiers of the ressource.
         """
-        self.ressource = ressource
         self.identifiers = identifiers
-        self.path = os.path.join(conf.data_dir, current_app.tenant, ressource, self.name, uuid + "." + self.extension)
 
-        with open(self.path, "rb") as infile:
-            self.stream = infile.read()
+        with open(self._getPath(), "rb") as infile:
+            self.stream = io.BytesIO(infile.read())
 
     def removeStreamFromFS(self):
-        """ Remove the stream from File system. loadStreamFromFS() have to be called first. """
-        if os.path.isfile(self.path):
-            os.unlink(self.path)
+        """ Remove the stream from File system. """
+        path = self._getPath()
+
+        if os.path.isfile(path):
+            os.unlink(path)
 
     def getURL(self):
         """ Retrieve URL. loadStreamFromFS() or loadStreamFromDB() have to be called first."""
         identifiers = "/".join(self.identifiers)
-        return "{}/{}/{}/{}.{}".format(self.base_url, self.ressource, identifiers, self.name, self.extension)
+        return "{}/{}/{}/{}.{}".format(self.base_url, self.ressource, identifiers, self.attribute, self.extension)
+
+    def _getPath(self):
+        return os.path.join(conf.data_dir, current_app.tenant, self.ressource, self.attribute, self.uuid + "." + self.extension)

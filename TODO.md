@@ -1,23 +1,23 @@
 # TODO List for v1.0 beta
 
-- Pour ne plus avoir a enregistrer des binary en DB modifier en ajoutant un en tete de type, faire une class qui test le type de fichier en fonction de l'empreinte du binaier (PNG dans header .png par exemple) (sinon renvoi application/octet-stream .bin)
-
 ## Next TODO
 
-- Faire un addon 'test' pour test unitaire (avec tous type de fiedls possible image binary fs pas fs, field minsucle, majuscule,...)
+- Faire un addon 'test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
 - tester country avec hookable à true
 - créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
+- Etudier possibilter de deplacer contenttype & hooks dans des modules (bases).
 - Reflechir au cache des donnée persistance (redis, memcache) : ajouter un attribut au ressource pour dire si on veut cacher ou pas (fait: _cacheable)
 - Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
+- Réfléchir à la gestion de la langue
 
 ## Création dynamique du model à partir du yaml
 
 - [x] Héritage classic : même attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
 - [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
 - [x] model logic (.py associé au .yalm avec utilisation API)
-- [ ] Faire une liste de fonction standar pour les constraint (exemple lowercase, uppercase, capitalize, ...) dans un module de .app
+- [ ] Faire une liste de fonction standar pour les constraints (exemple lowercase, uppercase, capitalize, ...) dans un module de .app
 
 ## Implementer les fonctions de base de ORM
 
@@ -37,7 +37,8 @@
 - [x] _postHTTP => write() => creation d'un instance de la ressource (id auto)
 - [x] _patchHTTP => update() => direct update (sans creation d'instance de ressource aka on lis pas la DB avant d'ecrire)=> attention au checks
 - [x] _deleteHTTP => delete() => direct delete (sans creation d'instance de ressource)
-- [ ] Traiter binary file
+- [x] Traiter binary file
+  * http://abandon.ie/notebook/simple-file-uploads-using-jquery-ajax (https://github.com/Abban/jQueryFileUpload)
   * path stockage FS : '/var/data/' + '<tenant>/<ressourcename>/<attribute>/<uuid>.<ext>
   * path URL : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
   * [x] Création type binaire
@@ -46,8 +47,8 @@
   * [x] load type binaire from DB et FS (search() / get())
   * [x] Suppression type binaire : delete() (FS,  DB Ok)
   * [x] JSON convert type binaire en URL (GET ressource)
-  * [ ] GET d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
-  * [ ] PUT/PATCH d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
+  * [x] GET d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
+  * [x] PUT/PATCH d'un type binaire : '/binary/' + <ressourcename>/<identifier>/<attribute>.<ext>
 
 ## Traiter relation interbackend
 
@@ -136,7 +137,13 @@
 
 ## Autres
 
+- Pour ne plus avoir a enregistrer des binary en DB modifier en ajoutant un en tete de type, faire une class qui test le type de fichier en fonction de l'empreinte du binaier (PNG dans header .png par exemple) (sinon renvoi application/octet-stream .bin)
+- Refléchir à content type perso pour rendu : 
+ * application/x-yameo-ui pour differrent type d'affichage ressources (label, help,...)
+ * application/x-yameo-pdf (xml, xlst) pour merge template avec ressource et sort pdf...
 - Rendre plugable format d'echange HTTP (json, bjson, csv,...) => voir comment on gere des rapport (PDF,)
+ * http://stackoverflow.com/questions/5573215/creating-a-pdf-from-xml-using-xsl-fo-w-python
+ * http://appyframework.org/podRenderingTemplates.html
 - Servent Send event (action de Workflow??)
 - Workflow odoo (https://www.odoo.com/documentation/8.0/reference/workflows.html) :
   * 1 Workflow est assosicé a un model

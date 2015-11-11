@@ -39,14 +39,15 @@ Fichier binaire ./lib/orm/pool.pyc correspondant|
 |lib/orm/mysql/orm.py|67| create table if not exist|
 |lib/orm/mysql/orm.py|68| exec add columns ALTER TABLE `users` ADD `date` DATE NULL DEFAULT NULL ;|
 |lib/orm/mysql/orm.py|69| si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;|
+|lib/orm/mysql/orm.py|94| A chaque modification, un nouveau fichier est créer sur le FS par BinearyField avec backendFS|
 |lib/orm/mysql/sql.py|98| remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())|
-|lib/orm/mysql/sql.py|227| gerer creation foreign key|
-|lib/orm/base.py|64| gerer relations|
-|lib/orm/base.py|83| Add internal fields (on backend herited class??)|
-|lib/orm/base.py|138| Check ACL RW allowed|
-|lib/orm/base.py|146| trigger workflow event onchange|
-|lib/orm/base.py|166| elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)|
-|lib/orm/base.py|173| Check ACL RO or RW allowed|
-|lib/orm/base.py|183| elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)|
-|lib/orm/base.py|251| implement en retirant les champs mis a copy=False|
-|lib/orm/base.py|272| add expend = True pour toucher les relation au lieux de leur id|
+|lib/orm/mysql/sql.py|230| gerer creation foreign key|
+|lib/orm/base.py|65| gerer relations|
+|lib/orm/base.py|84| Add internal fields (on backend herited class??)|
+|lib/orm/base.py|139| Check ACL RW allowed|
+|lib/orm/base.py|148| trigger workflow event onchange|
+|lib/orm/base.py|173| elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)|
+|lib/orm/base.py|180| Check ACL RO or RW allowed|
+|lib/orm/base.py|190| elif name in self._one2one._columns: (boucler sur self._one2one pour avoir acces aux ._columns)|
+|lib/orm/base.py|258| implement en retirant les champs mis a copy=False|
+|lib/orm/base.py|279| add expend = True pour toucher les relation au lieux de leur id|

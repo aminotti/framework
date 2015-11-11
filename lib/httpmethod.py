@@ -241,7 +241,7 @@ class HTTPMethods(object):
                 if col is None or not isinstance(col, BinaryField):
                     raise Core400Exception("Bad binary attribute : '{}'".format(key))
 
-                binary = Binary(key, val.mimetype, os.path.splitext(val.filename)[1][1:], val.stream)
+                binary = Binary(cls.__name__.lower(), key, val.mimetype, os.path.splitext(val.filename)[1][1:], val.stream)
 
                 dico[key] = binary
                 return dico

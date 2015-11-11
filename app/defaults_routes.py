@@ -21,13 +21,57 @@
 #
 ##############################################################################
 
-from flask import current_app
+import os
+import io
+from werkzeug import secure_filename
+from flask import current_app, send_file, request, Response
 from .controller import Controller
 from .context import models
 from .module import SmartManagement
+from lib.exceptions import *
+from lib.orm.binary import Binary
 
 
 ctl = Controller()
+
+
+@ctl.route('/binaries/<ressource>/<path:ids>/<filename>', methods=['GET', 'PUT', 'PATCH'])
+def getBinariesFiles(ressource, ids, filename):
+    ids = ids.split('/')
+    attribute, extension = os.path.splitext(secure_filename(filename))
+    ressource = ressource.capitalize()
+
+    res = models.get(ressource)
+    if not res:
+        raise Core404Exception("Ressource '{}' not found.".format(ressource))
+
+    res = res.get(*ids)
+
+    if not res:
+        raise Core404Exception("Ressource with ids '{}' not found.".format(ids))
+
+    if request.method == 'GET':
+        field = getattr(res, attribute.lower(), None)
+
+        if not field:
+            raise Core404Exception("'{}' of ressource '{}' not found.".format(attribute, ressource))
+
+        if field.extension != extension[1:]:
+            raise Core404Exception("File {}{} not found.".format(attribute, extension))
+
+        return send_file(field.stream, field.mimetype)
+    else:
+        if attribute.lower() not in res._columns:
+            raise Core400Exception("Bad binary attribute : '{}'".format(attribute))
+
+        binary = Binary(ressource.lower(), attribute, request.headers['Content-Type'], extension[1:], io.BytesIO(request.data))
+        setattr(res, attribute.lower(), binary)
+        res.write()
+
+        r = Response(None)
+        del r.headers['content-type']
+        r.status_code = 204
+        return r
 
 
 @ctl.route('/')

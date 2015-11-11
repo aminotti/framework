@@ -91,6 +91,7 @@ class ORM(Mapper, Sql):
         super(ORM, self).update(data2save, domain)
 
     def write(self):
+        # FIXME A chaque modification, un nouveau fichier est créer sur le FS par BinearyField avec backendFS
         req, data = self._updateSQL(self._columns, self._ids2domain())
         self._exeSQL(req, data)
         super(ORM, self).write()
