@@ -4,20 +4,24 @@
 
 - Faire un addon 'test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
 - tester country avec hookable à true
-- créer model ORM pour save conf DB par tenant en .py (pas .yaml)
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
 - Etudier possibilter de deplacer contenttype & hooks dans des modules (bases).
-- Reflechir au cache des donnée persistance (redis, memcache) : ajouter un attribut au ressource pour dire si on veut cacher ou pas (fait: _cacheable)
-- Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
 - Ameliorer maj structure DB qd update/upgrade/remove module
 - Réfléchir à la gestion de la langue
 
-## Création dynamique du model à partir du yaml
+## API REST pour gérer Yameo
+
+- routes dans module ``app/manager.py``, appli WSGI dédiés: module ``management`` application ``manager``.
+- [ ] création de module : creation de l'arbo dans répertoire addons, eventuellement tappez DB gestionnaire de projet pour genérer model YAML,... ``/modules/<module>/``
+- [x] Création/suppresion de tenant : ``PUT`` & ``DELETE`` sur ``/tenants/<tenant>/`` (<tenant> = fake qd app pas multitenant)
+
+## Création dynamique du model à partir du yaml & DB
 
 - [x] Héritage classic : même attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
 - [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
 - [x] model logic (.py associé au .yalm avec utilisation API)
-- [ ] Faire une liste de fonction standar pour les constraints (exemple lowercase, uppercase, capitalize, ...) dans un module de .app
+- [ ] Backup structure DB dans main DB pour permettre edition champs avec l'UI (TODO #200 dans context.py)
+- [ ] Faire une liste de fonction standards pour les constraints (exemple lowercase, uppercase, capitalize, ...) dans un module de .app
 
 ## Implementer les fonctions de base de ORM
 
@@ -76,7 +80,7 @@
   * settings : parametre propre au hook (dict serialisé)
 - [X] Ajouter un attribut au ressource pour definir si la ressource est hookable ou pas
 - [ ] Cacher les hooks dans un redis ou memchache
-- [ ] Token utiliser coté client pour calculer un hash (HMAC hexdiges) des data envoyer et calcul du meme hash coté server avec le meme token et comparaison.
+- [x] Share key utilise alog HMAC-SHA1 : http://taigaio.github.io/taiga-doc/dist/webhooks.html#_verify_signature.
 
 ## Gestion du cache
 

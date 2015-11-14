@@ -23,6 +23,8 @@
 
 import os
 import io
+import os
+import shutil
 from werkzeug import secure_filename
 from flask import current_app, send_file, request, Response
 from .controller import Controller
@@ -30,9 +32,11 @@ from .context import models
 from .module import SmartManagement
 from lib.exceptions import *
 from lib.orm.binary import Binary
+from .config import conf
 
 
 ctl = Controller()
+# TODO gerer les permissions sur toutes les routes
 
 
 @ctl.route('/binaries/<ressource>/<path:ids>/<filename>', methods=['GET', 'PUT', 'PATCH'])

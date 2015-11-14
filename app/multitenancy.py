@@ -25,12 +25,16 @@ import re
 from threading import Lock
 import json
 from werkzeug.exceptions import NotFound, HTTPException, default_exceptions
-from flask import Flask, request
+from flask import Flask, request, current_app
 from flask import jsonify
 from lib.exceptions import CoreException
 from .config import conf
 from lib.logger import debug, error, info
 from .module import SmartManagement
+from .context import models
+from .models import sysmod
+from lib.model import Builder
+from lib.orm.pool import Pool
 
 # Defaults routes must be last import
 from .defaults_routes import ctl as ctl_defaults_routes
@@ -109,9 +113,15 @@ class AppDispatcher(object):
         return app(environ, start_response)
 
     def _create_app(self, tenant):
-        if conf.auto_create_db:
-            # TODO Creation auto de db (et des different backend pour ce tenancy) et populate si un param de conf est a true pour auto create tenancy et ajout d'une route special pour faire ca.
-            pass
+
+        # Load system models
+        mod = __import__('lib.orm.{}'.format(Builder.getScheme(conf.db_uri)), globals(), locals(), ['ORM'], -1)
+        base = mod.ORM
+        for name, dico in sysmod.items():
+            dico.update(base.setupConnection(conf.db_uri, tenant))
+            cls = type(name, (base, ), dico)
+            models.add(tenant, name, cls)
+        Pool.build(conf.max_pool_size)
 
         app = WSGIApp(__name__)
         app.debug = conf.debug_level > 1

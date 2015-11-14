@@ -71,7 +71,9 @@ class MapperMetaCls(type):
                 if '_hookable' not in d:
                     d['_hookable'] = True
 
-                d.update(bases[0].setupConnection(d['_uri'], current_app.tenant))
+                # Connection need to be setup before calling MapperMetaCls in none app context
+                if '_connection_name' not in d:
+                    d.update(bases[0].setupConnection(d['_uri'], current_app.tenant))
 
         return type.__new__(mcs, name, bases, d)
 

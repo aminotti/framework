@@ -55,12 +55,20 @@ class ORM(Mapper, Sql):
     def parseURI(cls, uri):
         infos = super(ORM, cls).parseURI(uri)
         # TODO Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)
-        # Gerer charset mysql parametrable dans uri 'utf8mb4'
+        # TODO Gerer charset mysql parametrable dans uri 'utf8mb4'
         return infos
 
     @staticmethod
     def whoami():
         return "MySQL"
+
+    @classmethod
+    def createBackend(cls):
+        cls._exeSQL(cls._createDatabaseSQL())
+
+    @classmethod
+    def destroyBackend(cls):
+        cls._exeSQL(cls._dropDatabaseSQL())
 
     @classmethod
     def onInstall(cls):

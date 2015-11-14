@@ -21,7 +21,8 @@
 #
 ##############################################################################
 
-
+import hmac
+import hashlib
 import urllib2
 from lib import contenttype
 from ..logger import debug, error
@@ -52,6 +53,9 @@ class Web(object):
             if data:
                 if "mimetype" in settings:
                     mimetype, body = cls._convert2Minetype(data, settings['mimetype'])
+                    if "key" in settings:
+                        mac = hmac.new(settings["key"].encode("utf-8"), msg=body, digestmod=hashlib.sha1)
+                        req.add_header('X-Yameo-Signature', mac.hexdigest())
                 else:
                     mimetype, body = cls._convert2Minetype(data)
                 req.add_header('Content-Type', mimetype)

@@ -97,12 +97,10 @@ class SmartManagement(object):
         cls.toInstall = list(Set(cls.local['install']) - Set(cls.installed))
 
         # Load installed module + module to install - module to Remove
-        cls._autoRemove(Set(cls.local['remove']) & Set(cls.installed))
+        cls._autoRemove(app.tenant, Set(cls.local['remove']) & Set(cls.installed))
         cls._beforeAutoInstall(cls.toInstall)
         cls._importAll(app)
         cls._afterAutoInstall(app.tenant, cls.toInstall)
-
-        cls._saveInstalledModuleList(cls.installed, app.tenant)
 
     @classmethod
     def install(cls, module, app):
@@ -133,7 +131,7 @@ class SmartManagement(object):
         """
         # TODO implementer remove module avec ajout de route
         # cls.installed = cls._loadInstalledModuleList(app.tenant)
-        # cls._autoRemove([module])
+        # cls._autoRemove(app.tenant, [module])
         # cls._saveInstalledModuleList(cls.installed, app.tenant)
         cls._reset_app(app)
 
@@ -147,20 +145,13 @@ class SmartManagement(object):
                 local['install'].append(key)
             if val['auto-remove']:
                 local['remove'].append(key)
+        debug("Auto-install Addons : {}".format(local['install']))
         return local
 
     @classmethod
     def _loadInstalledModuleList(cls, tenant):
-        installed = list()
-
-        # TODO remplacer tout le bloc pas chargement depuis DB des module deja installé pour ce tenant
-        # installed.append('base')
-        installed.append('beta_test')
-        if tenant == 'meezio':
-            installed.append('base_perso')
-        installed.append('mod_test')
-
-        return installed
+        Addons = models.get("Addons", tenant)
+        return [str(addon.name) for addon in Addons.search(('1', '=', '1'))]
 
     @classmethod
     def _beforeAutoInstall(cls, modules):
@@ -171,22 +162,24 @@ class SmartManagement(object):
 
     @classmethod
     def _afterAutoInstall(cls, tenant, modules):
+        Addons = models.get("Addons", tenant)
+
         for module in modules:
+            a = Addons(name=module)
+            a.create()
             for mod in models.modules[tenant][module]:
                 models.get(mod, tenant).onInstall()
             # TODO import DATA
 
     @classmethod
-    def _autoRemove(cls, modules):
+    def _autoRemove(cls, tenant, modules):
         for module in modules:
             # TODO call onRemove() from all module's model
             # TODO gerer dependance d'autre module => on supprime tous les modules qui depende de lui (doit etre recursif)
+            Addons = models.get("Addons", tenant)
+            a = Addons.get(module)
+            a.unlink()
             cls.installed.remove(module)
-
-    @classmethod
-    def _saveInstalledModuleList(cls, installed, tenant):
-        # TODO save installed to DB
-        pass
 
     @classmethod
     def _importAll(cls, app):
@@ -218,7 +211,7 @@ class SmartManagement(object):
                 models.register(app.tenant, modelfile, module)
 
         # TODO Import view (xml) for current tenant/app
-        # TODO Import data (json, yaml, csv) for current tenant/app
+        # TODO Import data (json, yaml, csv) for current tenant/app (version prod: ex nomeclature & version demo: ex echantillons de données)
         # TODO Import workflow (xml ? yaml?) for current tenant/app
 
     @classmethod

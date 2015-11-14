@@ -94,6 +94,16 @@ class Sql(object):
         return sql, data
 
     @classmethod
+    def _createDatabaseSQL(cls):
+        sql = "CREATE DATABASE IF NOT EXISTS {};".format(cls._dbname)
+        return sql
+
+    @classmethod
+    def _dropDatabaseSQL(cls):
+        sql = "DROP DATABASE IF EXISTS {};".format(cls._dbname)
+        return sql
+
+    @classmethod
     def _createTableSQL(cls):
         # TODO remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())
         sql = "CREATE TABLE IF NOT EXISTS {}.{} (\n".format(cls._dbname, cls.__name__.lower())
