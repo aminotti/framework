@@ -2,12 +2,54 @@
 
 ## Next TODO
 
-- Faire un addon 'test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
-- tester country avec hookable à true
 - Reflechir agregation de backend (filestorage dans plusieur cloud, plusieur system d'authent,...)
 - Etudier possibilter de deplacer contenttype & hooks dans des modules (bases).
 - Ameliorer maj structure DB qd update/upgrade/remove module
 - Réfléchir à la gestion de la langue
+
+## Documentation
+
+- [ ] Mettre à jour la documentation
+- [ ] Documenter API Rest (manager.py, hooks, ...)
+- [ ] Documenter la création de plugins pour :
+ * [ ] mimetype
+ * [ ] hook
+
+## Tests
+
+### Définitions
+
+* **TDD**
+ 1. Write unit test
+ 2. Fail the test
+ 3. Write code
+ 4. Pass the test
+ 5. Refactor code
+* **ATDD** : *Given* <setup> *when* <trigger> *then* <verification>.
+* **BDD** : TDD + BDD : http://dannorth.net/whats-in-a-story/
+
+1. **Unit test** : Test class, method (individual piece of code).
+2. **Integration test** : Test how well several units interact with each other.
+3. **Acceptance test** : External view of the system. Ensure customer that the functionality meets their requirements.
+
+* **Regression test** : re-run unit and intergration tests after all patches, upgrades, and bug fixes in order to check that no new bugs have been introduced.
+
+### To do
+
+curl -v -X GET -H "Accept: application/json" http://api.meezio.eu:5000/country/5/
+curl -v -X GET http://api.meezio.eu:5000/binaries/country/6/photo.png
+
+curl -v -X PUT -H "Content-Type: image/png" --data-binary @tests/flag.png http://api.meezio.eu:5000/binaries/country/5/flag.png
+curl -v -X PUT -H "Content-Type: image/jpeg" --data-binary @tests/photo.jpg http://api.meezio.eu:5000/binaries/country/5/photo.jpg
+
+/binaries/country/6/photo.png
+/binaries/country/5/flag.jpg
+
+- Faire un addon 'test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
+- tester country avec hookable à true
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## API REST pour gérer Yameo
 

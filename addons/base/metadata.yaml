@@ -1,6 +1,6 @@
-name: Base module
+name: Base
 version: 1.0
-description: Description text
+description: YAMEO framework's base addon.
 author: Anthony Minotti
 email: anthony@yameo.org
 website: https://yameo.org

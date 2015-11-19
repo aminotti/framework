@@ -1,7 +1,0 @@
-name: Room
-sequence: 3 # Utile quand plusieurs models ont meme name (default 1)
-# uri: dummy://localhost
-uri: default
-fields:
-    batiment:
-        size: 4
