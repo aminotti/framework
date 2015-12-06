@@ -293,6 +293,8 @@ class Sql(object):
                 default = '1'
             else:
                 default = '0'
+        elif type(col.default) is unicode:
+            default = col.default.encode('utf-8')
         elif col.default:
             default = str(col.default)
 
@@ -334,7 +336,7 @@ class Sql(object):
         return "{} {}{}{}{}{},\n".format(name, sqltype, length, null, default, unique)
 
     @classmethod
-    def __getURLFieldSQL(cls, name, col):
+    def __getUrlFieldSQL(cls, name, col):
         return cls.__getStringFieldSQL(name, col)
 
     @classmethod
@@ -360,7 +362,7 @@ class Sql(object):
     def __getEnumFieldSQL(cls, name, col):
         default, null, unique = cls.__getColStruct(col)
         sqltype = "ENUM"
-        values = "('{}')".format("','".join(col.values))
+        values = "('{}')".format("','".join(col.values).encode('utf-8'))
         return "{} {}{}{}{}{},\n".format(name, sqltype, values, null, default, unique)
 
     @classmethod
@@ -442,3 +444,9 @@ class Sql(object):
         default, null, unique = cls.__getColStruct(col)
         sqltype = "DATETIME"
         return "{} {}{}{}{},\n".format(name, sqltype, null, default, unique)
+
+    @classmethod
+    def __getListFieldSQL(cls, name, col):
+        default, null, unique = cls.__getColStruct(col)
+        sqltype = "VARCHAR({})".format(col.length)
+        return "{} {}{}{},\n".format(name, sqltype, null, default)

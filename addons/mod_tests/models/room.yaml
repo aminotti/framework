@@ -1,5 +1,4 @@
 name: Room
-uri: default
 fields:
     batiment:
         type: int
@@ -8,19 +7,27 @@ fields:
         identifier: True
         unsigned: True
         default: 1
-    number:
+    numero:
         type: int
         size: 3
         zerofill: True
         identifier: True
         unsigned: True
-    name:
+    nom:
         type: string
         fieldName: 'room_name'
         length: 150
-    #contrat: 
-    #    type binary
-    #    require: False
-    #    backendFS: False
-indexes:
-    monindex: number
+    minibar:
+        type: bool
+        default: False
+    contrat: 
+        type: binary
+        require: False
+        backendFS: True
+    ready:
+        type: time
+        default: 14:45:00
+    score:
+        type: decimal
+        precision: 3
+        default: 3.14

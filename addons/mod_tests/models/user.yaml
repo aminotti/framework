@@ -1,0 +1,24 @@
+name: User
+# uri: config://ldap_uri
+objectClass:
+    - 'dafcoCreteilPerson'
+    - 'dafcoCreteilMailbox'
+    - 'shadowAccount'
+    - 'domainRelatedObject'
+
+fields:
+    uid:
+        type: string
+        # identifier: True
+    password:
+        type: string
+        help: 'Password must be at least 6 characters, no more than 15 characters'
+        regex: '^.{6,15}$'
+        fieldName: userPassword
+    applications:
+        type: set
+        default:
+            - ofac
+        values:
+            - infovae
+            - ofac

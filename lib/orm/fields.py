@@ -364,6 +364,7 @@ class ListField(Field):
     :param str regex: regex, **default** protect against XSS attack.
     """
     def __init__(self, **kw):
+        self.length = kw.pop('length', 1000)
         rx = kw.pop('regex', None)
         if rx is not None:
             self.regex = re.compile(rx)
@@ -448,7 +449,7 @@ class StringField(Field):
     :param str regex: regex, **default** protect against XSS attack.
     """
     def __init__(self, **kw):
-        self.length = kw.pop('length', None)
+        self.length = kw.pop('length', 255)
         rx = kw.pop('regex', None)
         if rx is not None:
             self.regex = re.compile(rx)

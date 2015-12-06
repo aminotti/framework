@@ -21,6 +21,7 @@
 #
 ##############################################################################
 
+import datetime
 from lib.exceptions import *
 import lib.orm.fields
 from app.config import conf
@@ -47,6 +48,9 @@ class Builder(object):
             # override fields
             attrs = data.pop('fields')
             for key, val in attrs.items():
+                if 'type' in val and 'default' in val:
+                    if val['type'] == 'time':
+                        val['default'] = datetime.datetime.utcfromtimestamp(val['default']).time()
                 if key in fields:
                     fields[key].update(val)
                 else:

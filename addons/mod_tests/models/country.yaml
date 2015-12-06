@@ -5,7 +5,8 @@ fields:
         type: string
         length: 50
         constraints: nameConstraints
-    price:
+    prix:
+        fieldName: price
         type: currency
         default: 0.00
         onchange: priceChange
@@ -13,15 +14,15 @@ fields:
         type: string
         length: 2
         unique: True
-    ville:
+    capitale:
         type: string
-        compute: villeCompute
-    photo:
+        compute: capitaleCompute
+    constitution:
         type: binary
         require: False
         mimeTypes:
-            - 'image/jpeg'
-            - 'image/png'
+            - 'application/vnd.oasis.opendocument.text'
+            - 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     flag:
         type: image
         backendFS: True

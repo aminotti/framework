@@ -45,7 +45,7 @@ curl -v -X PUT -H "Content-Type: image/jpeg" --data-binary @tests/photo.jpg http
 /binaries/country/6/photo.png
 /binaries/country/5/flag.jpg
 
-- Faire un addon 'test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
+- [x] Faire un addon 'mod_test' pour test unitaire (avec tous type de fields possible image binary fs pas fs, field minsucle, majuscule,...)
 - tester country avec hookable à true
 - [ ] 
 - [ ] 
@@ -59,6 +59,7 @@ curl -v -X PUT -H "Content-Type: image/jpeg" --data-binary @tests/photo.jpg http
 
 ## Création dynamique du model à partir du yaml & DB
 
+- *Les addons ne doivent pas avoir des noms de module standards sinon ne serat pas importer.*
 - [x] Héritage classic : même attribute 'name' et num 'sequence' pour priorité (Fusion avec la class mère)
 - [x] Héritage par exention :  'inherit' recoit la class mère dont on veut récup les fields (Copy du dict de la class mere)
 - [x] model logic (.py associé au .yalm avec utilisation API)
@@ -106,6 +107,8 @@ curl -v -X PUT -H "Content-Type: image/jpeg" --data-binary @tests/photo.jpg http
 - [ ] Quand relation pas au sein de la meme DB ou quand backend pas DB, assoss stocké dans la DB principale de l'application.
 - [ ] Traiter domain pour relation (ie: one2many pour route '/user/paris60/' [('age', '>', '60'), ('adress.city', 'like', 'Paris')])
 - [ ] Création automatique des routes
+- [ ] Gérer relation quand model embarqué dans meme instance (on meme document pour base NoSQL)
+- [ ] Gestion des clés etrangères
 
 ## Gestion des hooks
 

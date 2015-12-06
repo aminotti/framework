@@ -1,6 +1,6 @@
-name: Basic module
+name: Basic sample module
 version: 1.0
-description: This is description of basic module
+description: This module is for testing purpose
 author: Author Name
 email: author@name.tld
 website: http://www.monplug.tld

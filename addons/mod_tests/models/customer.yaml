@@ -1,0 +1,56 @@
+name: Customer
+uri: default
+fields:
+    mail:
+        type: email
+        index: True
+        copy: False
+    prenom:
+        type: string
+        fieldName: firstname
+        require: False
+        copy: False
+    nom:
+        type: string
+        fieldName: lastname
+        copy: False
+    gender:
+        type: enum
+        default: mâle
+        values:
+            - mâle
+            - femele
+    birthday:
+        type: date
+        default: 1980-05-12
+    mobile:
+        help: 'Format international'
+        type: phone
+        unique: True
+    size:
+        label: 'Taille en centimètres'
+        type: int
+        size: 3
+        unsigned: True
+    favoritecolor:
+        type: color
+        default: #FFFFFF
+    photo:
+        type: image
+        mimeTypes: 
+            - image/gif
+            - image/jpeg
+            - image/png
+        mimeType: image/png
+        extension: png
+    website:
+        type: url
+    hobbies:
+        default:
+            - sport
+            - lecture
+        type: list
+indexes:
+    idxfullname:
+        - prenom
+        - nom

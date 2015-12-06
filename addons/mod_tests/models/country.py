@@ -1,31 +1,32 @@
+from lib.logger import info
 from app import api
 from app.controller import Controller
 
 
 def test(self):
-    print "## test instance OK!", self
+    info("Test instance method, instance '{}' : OK!".format(self))
 
 
 @classmethod
 def test1(cls):
-    print "## test classmethod OK!", cls
+    info("Test classmethod, class '{}' : OK!".format(cls))
 
 
 @staticmethod
 def test2():
-    print "## test staticmethod OK!"
+    info("Test staticmethod : OK!")
 
 
 # onchange event
 def priceChange(self, before, after):
-    print "Updating price", before, after
+    info("Updating price : before '{}', after '{}'.".format(before, after))
     return after
 
 
 # Compute field
 @api.depends('paypalCode')
-def villeCompute(self):
-    print "Compute Field"
+def capitaleCompute(self):
+    info("Compute Field capitale.")
     if self.paypalCode is 'FR':
         return "Paris"
     else:
@@ -34,5 +35,5 @@ def villeCompute(self):
 
 # Constraint
 def nameConstraints(self, value):
-    print "Call on writting data."
+    info("Processing name constraints.")
     return value.capitalize()
