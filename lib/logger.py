@@ -24,7 +24,6 @@
 import sys
 from termcolor import colored
 import inspect
-from app.config import conf
 
 
 def debug(string):
@@ -32,15 +31,7 @@ def debug(string):
 
     :param str string: message to print.
     """
-    if conf.debug_level == 2:
-        print '[' + colored('DEBUG', 'blue') + ']', string
-    elif conf.debug_level == 3:
-        func = inspect.currentframe().f_back.f_code
-        print '[' + colored('DEBUG', 'blue') + ']', "%s: %s in %s:%i" % (
-            string,
-            func.co_name,
-            func.co_filename,
-            func.co_firstlineno)
+    print '[' + colored('DEBUG', 'blue') + ']', string
 
 
 def error(string):

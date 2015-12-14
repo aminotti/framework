@@ -127,7 +127,7 @@ class HTTPMethods(object):
         ressource = cls(dico)
         rid = ressource.create()
 
-        if rid:
+        if rid and len(ressource._identifiers) < 2:
             url = request.base_url + str(rid) + '/'
             data = {"Location": url}
 
@@ -181,11 +181,12 @@ class HTTPMethods(object):
 
     @classmethod
     def _getAcceptedContentType(cls):
-        accepts = cls._orderHeaderByq(request.headers['Accept'])
-        for accept in accepts:
-            if accept in contenttype.Converter.keys():
-                return accept, contenttype.Converter[accept]
-                break
+        if 'Accept' in request.headers:
+            accepts = cls._orderHeaderByq(request.headers['Accept'])
+            for accept in accepts:
+                if accept in contenttype.Converter.keys():
+                    return accept, contenttype.Converter[accept]
+                    break
 
         # Default content type is JSON
         # TODO RFC2616 sect 14.1, si wrong 'Accept' header : 406 (Not Acceptable). Si * ou pas de 'Accept' alors default json

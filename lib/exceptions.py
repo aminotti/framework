@@ -21,6 +21,9 @@
 #
 ##############################################################################
 
+
+from .logger import error
+
 """
 Exceptions are provided to send regular HTTP error code and messages.
 If debug level is higher than 0 additionals informations will be send, otherwise standart HTTP messages are use.
@@ -109,6 +112,7 @@ class Core500Exception(CoreException):
     :param str infos: A message describing the error.
     """
     def __init__(self, infos):
+        error(infos)
         super(Core500Exception, self).__init__(500, 'Internal Server Error', infos)
 
 

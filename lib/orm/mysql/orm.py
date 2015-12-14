@@ -130,7 +130,9 @@ class ORM(Mapper, Sql):
         if binFS:
             for res in ressources:
                 for f in binFS:
-                    getattr(res, f).removeStreamFromFS()
+                    binary = getattr(res, f)
+                    if binary:
+                        binary.removeStreamFromFS()
 
     @classmethod
     def _exeSQL(cls, request, data=tuple()):

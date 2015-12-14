@@ -95,6 +95,8 @@ class Field(object):
             self.index = False
             self.copy = False
             self.unique = False
+        if self.default is not None:
+            self.require = False
         self.readwrite = readwrite
         self.readonly = readonly
         self.backendType = backendType

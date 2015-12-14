@@ -6,7 +6,6 @@ fields:
         zerofill: True
         identifier: True
         unsigned: True
-        default: 1
     numero:
         type: int
         size: 3

@@ -20,19 +20,20 @@
 |app/module.py|228| reimporter defaults routes|
 |app/api.py|45|Run method if one of the  ameliorer commentaire|
 |app/defaults_routes.py|39| gerer les permissions sur toutes les routes|
+|tests/test_api_REST.py|32| POST with binary|
 |lib/httpmethod.py|54| add expend = True pour toucher les relation au lieux de leur id|
 |lib/httpmethod.py|55| ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes|
 |lib/httpmethod.py|103| Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'|
-|lib/httpmethod.py|191| RFC2616 sect 14.1, si wrong 'Accept' header : 406 (Not Acceptable). Si * ou pas de 'Accept' alors default json|
-|lib/httpmethod.py|223| documenter les different content-type possible avec leur contenu de body|
-|lib/httpmethod.py|229| gerer POST normal (x-www-form-urlencode) formulaire (voir tests/form.html)|
-|lib/httpmethod.py|234| Actuelement un seul attribut de form envoyer qui contient un json avec tout les fields :|
-|lib/httpmethod.py|249| Handle multipart/mixed, faire une lib pour gere corp http/mail :|
+|lib/httpmethod.py|192| RFC2616 sect 14.1, si wrong 'Accept' header : 406 (Not Acceptable). Si * ou pas de 'Accept' alors default json|
+|lib/httpmethod.py|224| documenter les different content-type possible avec leur contenu de body|
+|lib/httpmethod.py|230| gerer POST normal (x-www-form-urlencode) formulaire (voir tests/form.html)|
+|lib/httpmethod.py|235| Actuelement un seul attribut de form envoyer qui contient un json avec tout les fields :|
+|lib/httpmethod.py|250| Handle multipart/mixed, faire une lib pour gere corp http/mail :|
 |lib/context.py|80| checker champs requis présent dans yaml et bon type associé|
 |lib/context.py|87|200 cls._regiteredModels[tenant][key].append(<data from DB for this model/ressource>)|
 Fichier binaire ./lib/orm/pool.pyc correspondant|
 |lib/orm/pool.py|33:.. todo::|
-|lib/orm/fields.py|189| implémenter la conversion à la bonne taille|
+|lib/orm/fields.py|191| implémenter la conversion à la bonne taille|
 |lib/orm/mysql/orm.py|57| Eventuellement parser les params (infos[5]) pour recup db options (genre charset, autocommit,...)|
 |lib/orm/mysql/orm.py|58| Gerer charset mysql parametrable dans uri 'utf8mb4'|
 |lib/orm/mysql/orm.py|75| create table if not exist|

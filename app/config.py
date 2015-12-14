@@ -24,47 +24,62 @@
 import sys
 import os
 import yaml
+from lib.exceptions import *
+from lib.logger import error
 
 
 class Conf(object):
-    options = dict()
+    _options = dict()
 
     def __init__(self):
-        self._initOptions()
-        self._loadConfig()
+        self._options = yaml.load(open('config.yaml'))
+        self._initCliArgs()
+        self._initENVArgs()
 
-    def _initOptions(self):
+    def __getattr__(self, name):
+        if name in self._options and 'value' in self._options[name]:
+            return self._options[name]['value']
+        else:
+            raise Core500Exception("Error on option : '{}'".format(name))
+
+    def _initCliArgs(self):
         for arg in sys.argv:
             if arg.startswith('--'):
                 data = arg.split('=')
-                if len(data) > 1:
-                    options[data[0]] = data[1]
-                else:
-                    options[data[0]] = True
+                name = self.__cli2OptName(data[0])
 
-    def _loadConfig(self):
-        # Global conf
-        cf = yaml.load(open('config.yaml'))
-        for k, v in cf.items():
-            if type(v) is dict:
-                for n, d in v.items():
-                    setattr(self, k + n.capitalize(), self._overrideConf(k + n.capitalize(), d))
-            else:
-                setattr(self, k, self._overrideConf(k, v))
+                if name:
+                    if len(data) > 1:
+                        self._options[name]['value'] = self.__str2OptType(data[1], self._options[name]['type'])
+                    else:
+                        self._options[name]['value'] = True
 
-        # Modules conf
-        """
-        configs = [{'name': f, 'path': 'modules/%s/config.yaml' % f} for f in os.listdir('modules') if os.path.isfile('modules/%s/config.yaml' % f)]
-        for config in configs:
-            data = yaml.load(open(config['path']))
-            for k, v in data.items():
-                name = config['name'] + k.capitalize()
-                setattr(self, name, self._overrideConf(name, v))
-        """
-
-    def _overrideConf(self, key, value):
+    def _initENVArgs(self):
         """ Override config file with ENV and command line arguement """
-        return self.options.get('--' + key.lower().replace('_', '-'), os.getenv(key.upper(), value))
+        for name in self._options.keys():
+            value = os.getenv(name.upper())
+            if value:
+                self._options[name]['value'] = self.__str2OptType(value, self._options[name]['type'])
+
+    def __cli2OptName(self, name):
+        optname = name[2:].lower().replace('-', '_')
+        if optname not in self._options:
+            error("Invalid CLI arguement : '{}'".format(name))
+            return None
+        else:
+            return optname
+
+    def __str2OptType(self, value, opttype):
+        if opttype == 'integer':
+            return int(value)
+        elif opttype == 'boolean':
+            if value is '0' or value.lower() == 'false':
+                return False
+            else:
+                return True
+        else:
+            return value
+
 
 conf = Conf()
 
