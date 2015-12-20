@@ -195,6 +195,14 @@ class Sql(object):
                 if type(val) is list:
                     v.append(",".join(val))
                 elif type(val) is Binary:
+                    # Save ressource's identifiers in Binary object to get URL in hooks
+                    identifiers = list()
+                    for identifier in self._identifiers:
+                        ids = getattr(self, "_{}_field".format(identifier))
+                        ids = ids.fieldName or identifier
+                        identifiers.append(str(getattr(self, ids)))
+                    val.loadStreamFromDB(identifiers)
+
                     if col.backendFS:
                         # Remove old file on FS before saving new one
                         if val.uuid:

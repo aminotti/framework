@@ -23,15 +23,19 @@ def test_add_new_rooms(hostname):
     response.close()
 
     try:
-        request = urllib2.Request(url, json.dumps({'batiment': 1, 'numero': 2, 'name': 'My Room'}), {'Content-Type': 'application/json'})
+        request = urllib2.Request(url, json.dumps({'batiment': 1, 'numero': 2, 'name': 'My Failed Room'}), {'Content-Type': 'application/json'})
         response = urllib2.urlopen(request)
     except urllib2.HTTPError, error:
         assert error.getcode() == 400
+        assert error.read() == """{\n  "msg": "Bad attribute : 'name'"\n}"""
         response.close()
 
-    # TODO POST with binary
-    # with open("tests/france.bin") as f:
-    #    data = f.read()
+    with open("tests/room.bin") as f:
+        data = f.read()
+        request3 = urllib2.Request(url, data, {'Content-Type': 'multipart/form-data; boundary=01ead4a5-7a67-4703-ad02-589886e00923'})
+        response3 = urllib2.urlopen(request3)
+        assert response3.getcode() == 201
+        response3.close()
 
 
 @pytest.mark.apirest

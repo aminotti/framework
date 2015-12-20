@@ -20,7 +20,6 @@
 |app/module.py|228| reimporter defaults routes|
 |app/api.py|45|Run method if one of the  ameliorer commentaire|
 |app/defaults_routes.py|39| gerer les permissions sur toutes les routes|
-|tests/test_api_REST.py|32| POST with binary|
 |lib/httpmethod.py|54| add expend = True pour toucher les relation au lieux de leur id|
 |lib/httpmethod.py|55| ajouter un attribute expend = request.args.get('expend', False) pour geré si renvoi url des relations ou data completes|
 |lib/httpmethod.py|103| Set ressource language : request 'Accept-Language' and set reponse 'Content-Language'|
@@ -41,7 +40,7 @@ Fichier binaire ./lib/orm/pool.pyc correspondant|
 |lib/orm/mysql/orm.py|77| si failure exec modify columns ALTER TABLE `users` MODIFY `date` DATE NULL DEFAULT NULL ;|
 |lib/orm/mysql/orm.py|102| A chaque modification, un nouveau fichier est créer sur le FS par BinearyField avec backendFS|
 |lib/orm/mysql/sql.py|108| remove compute field from CREATE TABLE (resu of cls.__getColumnsSQL())|
-|lib/orm/mysql/sql.py|240| gerer creation foreign key|
+|lib/orm/mysql/sql.py|248| gerer creation foreign key|
 |lib/orm/base.py|65| gerer relations|
 |lib/orm/base.py|86| Add internal fields (on backend herited class??)|
 |lib/orm/base.py|141| Check ACL RW allowed|
